@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#04060a">
+<title>Cipher Security Academy · הכנה ליחידות הטכנולוגיות מתוך חברת סייבר פעילה</title>
+<meta name="description" content="הכנה ליחידות הטכנולוגיות לתלמידי י׳–י״ב, עם החוקרים של Cipher Security Labs. 15 מקומות, המחזור נפתח ב־1.1.2027.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="he_IL">
+<meta property="og:title" content="הכנה ליחידות הטכנולוגיות, מתוך חברת סייבר פעילה">
+<meta property="og:description" content="15 מקומות. מלמדים החוקרים של Cipher Security Labs. המחזור נפתח ב־1.1.2027.">
+<meta property="og:image" content="assets/img/og-parents.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css">
+<script>document.documentElement.classList.add('js')</script>
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/lenis.min.js" defer></script>
+<script type="module" src="assets/js/main.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top__in">
+    <a class="top__logo" href="#top" aria-label="Cipher Security Academy, לראש הדף">
+      <img src="assets/img/logo-wordmark.webp" alt="Cipher Security Academy" width="1000" height="222">
+    </a>
+    <a class="top__cta" href="#fit" data-track="cta_fit" data-source="header">בדיקת התאמה</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ─── hero ─────────────────────────────────────────────────────────── -->
+  <section class="hero" data-chapter="hero">
+    <canvas class="hero__field" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <div class="copy">
+        <h1 class="display decode">
+          <span class="w">הכנה</span> <span class="w">ליחידות</span> <span class="w">הטכנולוגיות,</span>
+          <span class="w">מתוך</span> <span class="w">חברת</span> <span class="w">סייבר</span> <span class="w">פעילה.</span>
+        </h1>
+        <p class="seats rise">15 מקומות.</p>
+        <p class="lead rise">לתלמידי י׳–י״ב. מלמדים <strong>החוקרים של <span class="nb">Cipher Security Labs</span></strong>. המחזור נפתח ב־1.1.2027.</p>
+        <div class="pair rise">
+          <a class="btn btn--solid" href="#fit" data-track="cta_fit" data-source="hero">בדיקת התאמה</a>
+          <button class="btn btn--line" type="button" data-open-share="hero">שלחו לילד</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── the same preparation ──────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="same">
+    <div class="wrap">
+      <h2 class="title split-words">כולם מגיעים למיונים עם אותה הכנה.</h2>
+      <p class="lead rise">אותם יסודות, אותם כלים, אותם תרגילים. כשכולם יודעים אותו דבר, היתרון עובר למי שהלך עמוק יותר.</p>
+      <div class="zeros" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- ─── defend / attack / research ────────────────────────────────────── -->
+  <section class="chapter" data-chapter="method" id="method">
+    <div class="wrap split">
+      <div>
+        <h2 class="title split-words">יש מי שמגן. יש מי שתוקף. <em>ויש מי שמוצא את מה ששניהם פספסו.</em></h2>
+        <p class="lead rise">בכל הכנה ליחידות לומדים להגן ולתקוף. אצלנו לומדים גם לחקור.</p>
+      </div>
+      <div>
+        <div class="sys" data-mode="defend" aria-hidden="true"></div>
+        <div class="lens" role="group" aria-label="איך מסתכלים על המערכת">
+          <button type="button" data-mode="defend" aria-pressed="true">מגן</button>
+          <button type="button" data-mode="attack" aria-pressed="false">תוקף</button>
+          <button type="button" data-mode="research" aria-pressed="false">חוקר</button>
+        </div>
+        <p class="lens-say" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── proof: HP ─────────────────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="hp" id="proof">
+    <div class="wrap split">
+      <div>
+        <h2 class="title split-words">את HP אתם מכירים. הנה מה שניר מצא בתוכנה שלה.</h2>
+        <p class="lead rise">ניר יהושע, המרצה של התכנית, בדק את HP Easy Start: התוכנה שמתקינה מדפסות HP במחשבי Mac.</p>
+      </div>
+      <div class="hp" data-step="0">
+        <div class="hp__stage" aria-hidden="true">
+          <svg viewBox="0 0 320 200" fill="none">
+            <g class="hp__inside">
+              <rect x="44" y="64" width="232" height="6" rx="3" fill="rgba(160,190,255,.22)"/>
+              <rect x="70" y="80" width="206" height="6" rx="3" fill="rgba(160,190,255,.22)"/>
+              <rect x="44" y="96" width="180" height="6" rx="3" fill="rgba(61,123,255,.6)"/>
+              <rect x="96" y="112" width="180" height="6" rx="3" fill="rgba(160,190,255,.22)"/>
+              <rect x="60" y="128" width="216" height="6" rx="3" fill="rgba(160,190,255,.22)"/>
+              <path class="hp__trace" d="M92 162 C 110 130, 160 140, 182 99 M92 162 C 140 150, 210 150, 246 115 M92 162 C 120 110, 200 90, 228 67" stroke="#ffb020" stroke-width="1.4" stroke-dasharray="4 4"/>
+              <g class="hp__flaws">
+                <circle cx="182" cy="99" r="6"/><circle cx="246" cy="115" r="6"/><circle cx="228" cy="67" r="6"/>
+              </g>
+            </g>
+            <g class="hp__win">
+              <rect class="hp__glass" x="20" y="20" width="280" height="164" rx="10" fill="#0d1526" stroke="rgba(160,196,255,.55)"/>
+              <path d="M20 44h280" stroke="rgba(160,196,255,.35)"/>
+              <circle cx="36" cy="32" r="4" stroke="rgba(160,196,255,.55)"/><circle cx="50" cy="32" r="4" stroke="rgba(160,196,255,.55)"/><circle cx="64" cy="32" r="4" stroke="rgba(160,196,255,.55)"/>
+              <text x="284" y="36.5" text-anchor="end" font-family="Heebo, sans-serif" font-weight="700" font-size="12" fill="#eef1f6" direction="ltr">HP Easy Start</text>
+              <g class="hp__face">
+                <rect x="228" y="62" width="48" height="36" rx="4" stroke="rgba(238,241,246,.7)"/>
+                <path d="M236 62v-8h32v8M236 88h32v12h-32z" stroke="rgba(238,241,246,.7)"/>
+                <rect x="118" y="64" width="96" height="6" rx="3" fill="rgba(238,241,246,.3)"/>
+                <rect x="150" y="78" width="64" height="6" rx="3" fill="rgba(238,241,246,.3)"/>
+                <rect x="44" y="118" width="232" height="6" rx="3" fill="rgba(238,241,246,.12)"/>
+                <rect x="110" y="118" width="166" height="6" rx="3" fill="#3d7bff"/>
+              </g>
+              <rect class="hp__key" x="44" y="146" width="96" height="30" rx="4" fill="#1f63ff"/>
+              <text x="92" y="166" text-anchor="middle" font-family="Heebo, sans-serif" font-weight="700" font-size="13" fill="#fff">המשך</text>
+            </g>
+          </svg>
+        </div>
+        <div class="hp__tabs" role="tablist" aria-label="מה ניר מצא">
+          <button type="button" role="tab" data-step="0" aria-selected="true">מבחוץ</button>
+          <button type="button" role="tab" data-step="1" aria-selected="false">מבפנים</button>
+          <button type="button" role="tab" data-step="2" aria-selected="false">התוצאה</button>
+        </div>
+        <p class="hp__say" aria-live="polite"></p>
+        <p class="say rise">וזו רק אחת. ב־2026 לבד פרסמה סייפר יותר מ־30 חולשות מתועדות.</p>
+        <div class="links">
+          <a class="link" href="https://ciphersecuritylabs.com/papers/rooted-in-trust-breaking-hp-easy-starts-macos-privilege-boundaries/" target="_blank" rel="noopener" data-track="proof_link" data-target="hp-paper">המחקר המלא על HP ↗</a>
+          <a class="link" href="https://ciphersecuritylabs.com/CVE-Tracker" target="_blank" rel="noopener" data-track="proof_link" data-target="cve-tracker">כל החולשות שפרסמנו ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── who teaches ───────────────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="nir" id="nir">
+    <div class="wrap split">
+      <div>
+        <h2 class="title split-words">ניר הוא מי שילמד את הילד שלכם.</h2>
+        <p class="say rise">לא מדריך שסיים את השירות לפני שנה. חוקר שעושה את זה כל יום.</p>
+      </div>
+      <div>
+        <figure class="nir__photo"><img src="assets/img/nir.webp" alt="ניר יהושע מרצה בכנס" width="800" height="800" loading="lazy"></figure>
+        <p class="nir__text"><strong>ניר יהושע.</strong> מייסד שותף ומוביל המחקר ההתקפי ב־<span class="nb">Cipher Security Labs</span>. יותר מעשר שנות מחקר סייבר, ויוצא צוות עילית למחקר אבטחה ותגובה לאירועים בצה״ל.</p>
+        <p class="say">השם שלו רשום בדיווחי החולשות הרשמיים של <span class="nb">HP</span>, <span class="nb">Dell</span>, <span class="nb">Ericsson</span> ו־<span class="nb">Fujitsu</span>.</p>
+        <a class="book" href="https://www.amazon.com/dp/1801079749" target="_blank" rel="noopener" data-track="proof_link" data-target="book">
+          <span class="book__cover"><img src="assets/img/book-cover.webp" alt="כריכת הספר Antivirus Bypass Techniques" width="810" height="1000" loading="lazy"></span>
+          <span class="book__text"><b>הספר שכתב על עקיפת אנטי־וירוס ↗</b><span class="nb">Antivirus Bypass Techniques</span>, הוצאת Packt, 2021. נכתב יחד עם אוריאל קוסייב.</span>
+        </a>
+        <p class="lead">לצידו מלווים את התלמידים חוקרי סייפר: בין המפגשים ובקהילה.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── the program ───────────────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="program" id="program">
+    <div class="wrap split">
+      <div>
+        <h2 class="title split-words">30&nbsp;מפגשים. אף&nbsp;פעם לא&nbsp;לבד.</h2>
+        <p class="lead rise">פעמיים בשבוע, שעתיים, מהבית. ובין המפגשים תמיד יש עם מי לחשוב.</p>
+        <div class="loop">
+          <span class="loop__ring" aria-hidden="true"></span>
+          <span class="loop__dot" aria-hidden="true"></span>
+          <button class="loop__node" type="button" aria-pressed="true" data-say="פעמיים בשבוע, שעתיים, מהבית. לומדים איך מערכת עובדת, ואז מפרקים אותה.">מפגש חי עם ניר</button>
+          <button class="loop__node" type="button" aria-pressed="false" data-say="נתקעו בתרגיל? כותבים בוואטסאפ ומקבלים תשובה מחוקר. לא מחכים לשיעור הבא.">ליווי בוואטסאפ</button>
+          <button class="loop__node" type="button" aria-pressed="false" data-say="מפגש שבועי פתוח עם חוקר סייבר, שסוגר את מה שנשאר פתוח.">תרגול פתוח עם חוקר</button>
+          <button class="loop__node" type="button" aria-pressed="false" data-say="שנה שלמה בקהילה הסגורה של סייפר, עם התלמידים והחוקרים.">קהילת הדיסקורד</button>
+        </div>
+        <p class="loop__say" aria-live="polite"></p>
+      </div>
+      <div>
+        <h3 class="rise">מתרגלים במעבדות של CyCube.</h3>
+        <p class="lead">סביבות תרגול בענן, שבהן מתאמנים גם סטודנטים בטכניון ואנשי הסייבר של בנק ישראל. מקום בטוח לנסות, לטעות ולהבין.</p>
+        <div class="lab" aria-live="polite">
+          <div class="lab__steps"><span class="is-on">משימה</span><span>ניסיון</span><span>הבנה</span></div>
+          <p class="lab__line">למצוא איך השרת מזהה משתמשים.</p>
+        </div>
+        <p class="lead"><strong>בסוף: סימולציית מיון ומבחן CTF.</strong> תעודה מקבלים רק אם עוברים. למצטיינים: מסלול המשך ב־<span class="nb">Reverse Engineering</span>, בקבלה נפרדת.</p>
+        <div class="links">
+          <button class="link" type="button" data-open-syllabus>18 פרקי הסילבוס ↗</button>
+          <a class="link" href="https://www.cycube.io/en/" target="_blank" rel="noopener" data-track="proof_link" data-target="cycube">להכיר את CyCube ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── the filter ────────────────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="filter" id="admission">
+    <div class="wrap split">
+      <div>
+        <h2 class="title split-words">לא כל מי שרוצה מתקבל.</h2>
+        <p class="lead rise">15 מקומות במחזור. אין שיעור ניסיון: אפשר לבדוק אותנו, אי אפשר לבדוק מחויבות בשעה אחת.</p>
+        <p class="path rise" aria-label="שלבי הקבלה: בדיקת התאמה, שיחה, ראיון, מבחן"><span>בדיקת התאמה</span><i aria-hidden="true">←</i><span>שיחה</span><i aria-hidden="true">←</i><span>ראיון</span><i aria-hidden="true">←</i><span>מבחן</span></p>
+        <div class="price">
+          <p class="price__n">9,900 ₪.</p>
+          <p>כתוב מראש, כדי שתגיעו לשיחה כשאתם כבר יודעים. כולל <strong>30 מפגשים עם חוקרים פעילים, מעבדות CyCube, ליווי בין המפגשים, שנה בקהילה וסימולציית מיון.</strong></p>
+        </div>
+      </div>
+      <div class="check">
+        <h3>מה הם צריכים לדעת כבר עכשיו?</h3>
+        <div class="check__grid" role="group" aria-label="דרישות הקדם">
+          <button type="button" aria-pressed="false" data-req="python">Python בסיסי: לולאות, תנאים, פונקציות</button>
+          <button type="button" aria-pressed="false" data-req="networks">רשתות: IP, DNS, HTTP</button>
+          <button type="button" aria-pressed="false" data-req="os">Windows בביטחון, Linux בסיסי</button>
+          <button type="button" aria-pressed="false" data-req="cli">שורת פקודה ומערכת קבצים</button>
+          <button type="button" aria-pressed="false" data-req="english">קוראים תיעוד טכני באנגלית</button>
+          <button type="button" aria-pressed="false" data-req="self">לומדים לבד ולא מוותרים</button>
+          <button type="button" aria-pressed="false" data-req="time">יש זמן לתרגל בין המפגשים</button>
+          <button type="button" aria-pressed="false" data-req="pc">מחשב שמריץ מכונות וירטואליות</button>
+        </div>
+        <p class="check__say" aria-live="polite">סמנו מה כבר נכון לגביהם.</p>
+        <p class="lead">חסר בסיס? יש מסלול הכנה. מי שעובר את המבחן בסופו ממשיך ישר לראיון.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── their turn ────────────────────────────────────────────────────── -->
+  <section class="chapter turn" data-chapter="turn" id="challenge">
+    <div class="wrap split">
+      <div>
+        <h2 class="title split-words">עכשיו תורם להראות איך הם חושבים.</h2>
+        <p class="lead rise">אתגר סייפר: שרת ייעודי, משימה אחת, שלושה רמזים. מי שפותר מקבל יתרון משמעותי בקבלה.</p>
+        <p class="say rise">אנחנו יכולים לשכנע אתכם. אנחנו לא רוצים שתשכנעו אותם.</p>
+      </div>
+      <div>
+        <canvas class="turn__field" aria-hidden="true"></canvas>
+        <div class="pair">
+          <button class="btn btn--solid" type="button" data-share-now="kid" data-source="turn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.4 14.1c-.2.6-1.3 1.2-1.8 1.3-.5.1-1 .1-3.3-.8-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
+            שלחו לילד את האתגר
+          </button>
+          <button class="btn btn--line" type="button" data-copy-kid data-source="turn">העתקת הקישור</button>
+        </div>
+        <div class="turn__more">
+          <a class="link" href="kid/?preview=1" target="_blank" rel="noopener" data-track="kid_page_preview">לראות את העמוד שהם יקבלו ↗</a>
+          <button class="link" type="button" data-share-now="partner" data-source="turn">לשלוח גם לבן או לבת הזוג</button>
+        </div>
+        <p class="sheet__note" data-copy-note aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── fit check ─────────────────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="fit" id="fit">
+    <div class="wrap split">
+      <div>
+        <h2 class="title split-words">בדיקת התאמה. 4&nbsp;שאלות, דקה&nbsp;אחת.</h2>
+        <p class="lead rise">אחרי התשובות נגיד לכם בכנות מה הצעד הבא, גם אם הוא לא אצלנו.</p>
+      </div>
+      <div class="fit" data-quiz>
+        <noscript><p>בדיקת ההתאמה דורשת JavaScript. אפשר לכתוב לנו בוואטסאפ.</p></noscript>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── faq ───────────────────────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="faq" id="faq">
+    <div class="wrap">
+      <h2 class="title split-words">לפני שמדברים.</h2>
+      <div class="faq">
+        <details data-faq="guarantee"><summary>התכנית מבטיחה קבלה ל־8200?</summary><p>לא. אף אחד לא יכול להבטיח את זה, ואנחנו לא נעשה את זה. אנחנו מחליטים לאיזו רמה אנחנו מכינים, לא לאן מתקבלים.</p></details>
+        <details data-faq="no-knowledge"><summary>אין להם עדיין ידע בסייבר. אפשר להתחיל?</summary><p>כן, דרך מסלול ההכנה. מי שעובר את המבחן בסופו ממשיך ישר לראיון.</p></details>
+        <details data-faq="schedule"><summary>איפה ומתי לומדים?</summary><p>מהבית, פעמיים בשבוע, שעתיים כל מפגש. המחזור נפתח ב־1.1.2027, והימים והשעות נמסרים בשיחת ההתאמה.</p></details>
+        <details data-faq="trial"><summary>יש שיעור ניסיון?</summary><p>לא. אפשר לבדוק אותנו: את המחקרים, את הספר ואת החולשות שפרסמנו. אי אפשר לבדוק מחויבות בשעה אחת.</p></details>
+        <details data-faq="after"><summary>מה קורה אחרי בדיקת ההתאמה?</summary><p>נחזור אליכם לשיחה קצרה. אם יש התאמה, נקבע ראיון עם הנער או הנערה, ואחריו מבחן אצלנו.</p></details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot" data-chapter="end">
+  <div class="wrap">
+    <img class="foot__logo" src="assets/img/logo-wordmark.webp" alt="Cipher Security Academy" width="1000" height="222" loading="lazy">
+    <div class="links">
+      <a class="link" href="https://ciphersecuritylabs.com/" target="_blank" rel="noopener">Cipher Security Labs ↗</a>
+      <a class="link" href="https://ciphersecuritylabs.com/research" target="_blank" rel="noopener">המחקרים ↗</a>
+      <a class="link" href="#top">חזרה למעלה ↑</a>
+    </div>
+    <small>התכנית אינה מבטיחה קבלה ליחידה כלשהי בצה״ל. הפרטים שתשאירו ישמשו רק ליצירת קשר לגבי התכנית.</small>
+  </div>
+</footer>
+
+<div class="dock" aria-hidden="true">
+  <div class="pair">
+    <a class="btn btn--solid" href="#fit" tabindex="-1" data-track="cta_fit" data-source="dock">בדיקת התאמה</a>
+    <button class="btn btn--line" type="button" tabindex="-1" data-open-share="dock">שלחו לילד</button>
+  </div>
+</div>
+
+<dialog class="sheet" id="share" aria-labelledby="share-title">
+  <div class="sheet__in">
+    <div class="sheet__head">
+      <h2 id="share-title">למי שולחים?</h2>
+      <button class="sheet__x" type="button" data-close aria-label="סגירה">×</button>
+    </div>
+    <div class="sheet__opts">
+      <button class="btn btn--solid" type="button" data-share-now="kid">לילד: האתגר שלו <span aria-hidden="true">↗</span></button>
+      <button class="btn btn--line" type="button" data-share-now="partner">לבן או לבת הזוג: הדף הזה <span aria-hidden="true">↗</span></button>
+      <button class="btn btn--line" type="button" data-copy-kid>העתקת הקישור לילד</button>
+    </div>
+    <p class="sheet__note" data-copy-note aria-live="polite">כל קישור אישי. הילד מגיע לעמוד שנבנה בשבילו, עם האתגר.</p>
+  </div>
+</dialog>
+
+<dialog class="sheet" id="syllabus" aria-labelledby="syl-title">
+  <div class="sheet__in">
+    <div class="sheet__head">
+      <h2 id="syl-title">18 פרקים. מהיסודות עד חקירה עצמאית.</h2>
+      <button class="sheet__x" type="button" data-close aria-label="סגירה">×</button>
+    </div>
+    <div class="syl">
+      <h3>מבינים את המערכת <span>· פרקים 1–5</span></h3>
+      <details><summary>יסודות המחשוב</summary><ul><li>מבנה המחשב ומערכות הפעלה</li><li>תהליכים, זיכרון ומערכת הקבצים</li><li>Linux, שורת פקודה והרשאות</li><li>סביבת עבודה ומעבדות וירטואליות</li></ul></details>
+      <details><summary>תכנות ופיתוח</summary><ul><li>יסודות תכנות ו־Python</li><li>סקריפטים ואוטומציה</li><li>קבצים, רשתות ועבודה עם API</li><li>איתור שגיאות וקריאת קוד</li><li>Git וניהול גרסאות</li></ul></details>
+      <details><summary>תקשורת ורשתות</summary><ul><li>מבנה רשתות, כתובות וניתוב</li><li>פרוטוקולים ושירותי רשת</li><li>ניתוח תעבורה ב־Wireshark</li><li>אבחון תקלות תקשורת</li></ul></details>
+      <details><summary>קריפטוגרפיה ותקשורת מאובטחת</summary><ul><li>הצפנה סימטרית ואסימטרית</li><li>גיבוב וחתימות דיגיטליות</li><li>תעודות ו־TLS</li><li>כשלים בשימוש בהצפנה</li></ul></details>
+      <details><summary>טכנולוגיות Web</summary><ul><li>הקשר בין לקוח לשרת</li><li>HTML ו־JavaScript</li><li>בקשות HTTP, עוגיות ו־Sessions</li><li>שרתים, מסדי נתונים ו־SQL</li></ul></details>
+      <h3>לומדים לבדוק אותה <span>· פרקים 6–12</span></h3>
+      <details><summary>מיפוי מערכת</summary><ul><li>מיפוי תשתיות, כתובות ונתיבים</li><li>זיהוי טכנולוגיות ופונקציות נסתרות</li><li>מתודולוגיה למיפוי</li></ul></details>
+      <details><summary>מתודולוגיית בדיקות אבטחה</summary><ul><li>איסוף מידע ואימות ממצאים</li><li>בדיקות ידניות וחשיבה בשרשרת</li><li>שחזור ממצאים וזיהוי התראות שווא</li></ul></details>
+      <details><summary>אבטחת יישומי Web</summary><ul><li>OWASP Top 10</li><li>אימות קלט</li><li>הרשאות וניהול Session</li><li>לוגיקה עסקית וחשיפת מידע</li></ul></details>
+      <details><summary>זהויות, הרשאות וטוקנים</summary><ul><li>מודלים של אימות והרשאות</li><li>טוקני גישה וריענון</li><li>בקרת גישה לפי תפקיד</li></ul></details>
+      <details><summary>אבטחת API</summary><ul><li>מבנה API ושירותי REST</li><li>הרשאות ברמת אובייקט ופעולה</li><li>בדיקת קלט ולוגיקה עסקית</li></ul></details>
+      <details><summary>כלי בדיקות אבטחה</summary><ul><li>Burp Suite וניתוח בקשות</li><li>Wireshark וכלי רשת</li><li>אוטומציה של בדיקות</li></ul></details>
+      <details><summary>אוטומציה בסייבר</summary><ul><li>Python לבדיקות אבטחה</li><li>עיבוד מידע ובניית כלי עזר</li><li>שילוב כלים בבדיקות ידניות</li></ul></details>
+      <h3>חושבים כמו חוקרים <span>· פרקים 13–18</span></h3>
+      <details><summary>חקר חולשות</summary><ul><li>מתודולוגיה למחקר ידני</li><li>קריאת קוד וניתוח התנהגות</li><li>שורש התקלה, שחזור ואימות</li><li>הערכת השפעה ודיווח אחראי</li></ul></details>
+      <details><summary>חשיבה מחקרית ופתרון בעיות</summary><ul><li>בניית השערות וחקירה טכנית</li><li>זיהוי התנהגות לא צפויה</li><li>למידה עצמית של טכנולוגיות חדשות</li></ul></details>
+      <details><summary>CTF ותרגול מעשי</summary><ul><li>מתודולוגיה לפתרון אתגרים</li><li>משימות מוגבלות בזמן</li><li>מעבדות ותרחישים מעשיים</li></ul></details>
+      <details><summary>כתיבה ודיווח מקצועי</summary><ul><li>תיעוד וסיווג ממצאים</li><li>הערכת חומרה וסיכון</li><li>דוחות טכניים ודיווח אחראי</li></ul></details>
+      <details><summary>מיומנויות עבודה טכנולוגיות</summary><ul><li>למידה עצמית וחיפוש מידע</li><li>בניית סביבת ניסוי</li><li>עבודה תחת מגבלות זמן</li></ul></details>
+      <details><summary>פרויקט ומבחן מסכם</summary><ul><li>מיפוי מערכת ואימות ממצאים</li><li>דוח מקצועי</li><li>אתגר ופרויקט מסכם</li></ul></details>
+      <div class="links"><a class="link" href="https://ciphersecurity.co.il/8200/syllabus" target="_blank" rel="noopener" data-track="proof_link" data-target="syllabus-full">הסילבוס המלא ↗</a></div>
+    </div>
+  </div>
+</dialog>
+
+</body>
+</html>

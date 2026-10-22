@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>og card</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/site.css">
+<style>
+  /* the WhatsApp / Facebook preview card: 1200×630, shot by tools/og.mjs */
+  html, body { inline-size: 1200px; block-size: 630px; overflow: hidden; }
+  body { position: relative; }
+  canvas { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
+  .card { position: absolute; inset-block: 0; inset-inline-start: 0; inline-size: 640px; display: grid; align-content: center; padding-inline: 64px 0; }
+  .card img { block-size: 40px; inline-size: auto; margin-block-end: 34px; }
+  .card h1 { font-weight: 900; font-size: 58px; line-height: 1.05; letter-spacing: -0.015em; }
+  .card p { margin-block-start: 16px; font-weight: 900; font-size: 42px; line-height: 1.1; white-space: nowrap; inline-size: fit-content;
+    background: linear-gradient(90deg, var(--blue), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+</style>
+</head>
+<body>
+<canvas aria-hidden="true"></canvas>
+<div class="card">
+  <img src="../assets/img/logo-wordmark.webp" alt="">
+  <h1 id="h"></h1>
+  <p id="p"></p>
+</div>
+<script type="module">
+  import { createVortex } from '../assets/js/vortex.js';
+  const kid = new URLSearchParams(location.search).get('v') === 'kid';
+  const h = document.getElementById('h');
+  if (kid) h.append('קיבלתם קישור ל־Cipher.', document.createElement('br'), 'עכשיו תורכם.');
+  else h.textContent = 'הכנה ליחידות הטכנולוגיות, מתוך חברת סייבר פעילה.';
+  document.getElementById('p').textContent = kid ? 'משימה אחת, שלושה רמזים.' : '15 מקומות.';
+  createVortex(document.querySelector('canvas'), { layout: (w, h) => ({ cx: w * 0.25, cy: h * 0.5, R: h * 0.4 }) });
+</script>
+</body>
+</html>

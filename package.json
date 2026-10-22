@@ -1,0 +1,13 @@
+{
+  "name": "cipher-academy-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node tools/serve.mjs",
+    "test": "node tools/flow-test.mjs",
+    "shots": "node tools/page-shots.mjs http://localhost:8137/ tools/out/page chromium"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
