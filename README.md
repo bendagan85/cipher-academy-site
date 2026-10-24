@@ -116,20 +116,48 @@ desktop, phones held sideways included. With Save-Data on, on 2G, or when
 the browser refuses autoplay (iOS low-power mode), the keyhole shows the
 poster and a play button instead of the muted loop.
 
-## Deploy
-
-A push to `main` deploys to production on Vercel through
-`.github/workflows/deploy.yml`. The token it uses is the repository secret
-`VERCEL_TOKEN`: it never goes in the code. `.vercelignore` keeps the tooling,
-the docs and the design directions off the live site.
-
 ## Check it
 
 ```bash
 npm install                   # playwright, for the checks only
 npm test                      # every interaction + the data layer, reduced motion, no-JS, all three pages
 npm run shots                 # phone screenshots chapter by chapter + page length in screens
+node tools/flow-test.mjs https://cipher-academy-site.vercel.app   # the same checks against the live site
 ```
 
 Headless WebKit draws 3D transforms flat, so the defend/attack/research
 chapter is only meaningful in the Chromium shots or on a real phone.
+
+Run the flow test against the live site only while the endpoints in
+`assets/js/config.js` are empty. Once they are wired, it would send a test
+lead and test events to the real backend.
+
+## Deploy
+
+A push to `main` deploys to production on Vercel through
+`.github/workflows/deploy.yml`, to the project `cipher-academy-site`
+(https://cipher-academy-site.vercel.app). The token it uses is the
+repository secret `VERCEL_TOKEN`: it never goes in the code.
+`.vercelignore` keeps the tooling, the docs and the design directions off
+the live site. Link to the address above: the per-deployment addresses sit
+behind a Vercel login.
+
+**The repository has to be public while it deploys.** The Vercel project is
+on a Hobby (free) team, and Hobby won't deploy a private repository's
+commits unless the commit author owns the team. Vercel marks such a
+deployment `BLOCKED` ("the commit author doesn't have permission to create
+deployments for this project"), and the workflow then waits on it until
+someone cancels the run. The repository is kept private, so a deploy goes:
+
+```bash
+gh repo edit bendagan85/cipher-academy-site --visibility public --accept-visibility-change-consequences
+git push origin main          # or, if the push already happened: cancel its stuck run, then gh run rerun <run-id>
+gh run watch <run-id> --exit-status
+gh repo edit bendagan85/cipher-academy-site --visibility private --accept-visibility-change-consequences
+```
+
+Check the live site between the last two steps. The other way out is to
+upgrade the Vercel team to Pro and add the commit author as a member.
+
+A commit that only touches the docs needs no deploy, since the docs aren't
+served: put `[skip ci]` in its message and the workflow doesn't run.

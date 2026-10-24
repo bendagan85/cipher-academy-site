@@ -135,3 +135,20 @@ the Vercel CLI against the business's Vercel project with the repository
 secret `VERCEL_TOKEN`. Gate every push on `npm test`, never write the token
 into a file, and keep `.vercelignore` in step when you add tooling or notes —
 anything not listed there is served on the live site.
+
+- **A private repo can't deploy.** The Vercel team is on Hobby, which
+  blocks a private repository's commits from anyone but the team's owner:
+  the deployment shows `BLOCKED` (`TEAM_ACCESS_REQUIRED`) and the workflow
+  hangs waiting on it. The repo's owner keeps it private and makes it public
+  only for the length of a deploy. README's "Deploy" section has the steps;
+  don't change the repo's visibility without being asked to deploy.
+- **Don't get around the check** by stripping the git metadata from the
+  upload (deleting `.git` before `vercel deploy`, say). That evades Vercel's
+  plan rule rather than meeting it.
+- **Docs-only commits go out with `[skip ci]`** in the message: the docs
+  aren't served, so there's nothing to deploy.
+- **After a deploy, check the live site**: compare it with the local files,
+  and confirm the paths `.vercelignore` lists return 404.
+  `node tools/flow-test.mjs https://cipher-academy-site.vercel.app` runs the
+  full suite against it, but only while `CONFIG.api` is empty. Once the
+  endpoints are wired, it would post a test lead to the real backend.
