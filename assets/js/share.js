@@ -3,19 +3,42 @@
 import { CONFIG } from './config.js';
 import { track, journey, rid } from './track.js';
 
+// What lands in WhatsApp. The kid's message is the first thing the teen reads
+// from us, so it carries who we are, why it is worth their time, and how to
+// take the challenge: on a computer, three hints, no AI.
 const MESSAGES = {
-  kid: (url) => `מצאתי משהו שנראה לי שיעניין אותך: האתגר של Cipher. שרת אחד, משימה אחת, שלושה רמזים. ${url}`,
-  partner: (url) => `תסתכל/י על זה לפני שנדבר: האקדמיה של Cipher Security Labs. 15 מקומות, מתחילים בינואר. ${url}`,
+  kid: (url) => [
+    'מצאתי משהו שנראה לי בדיוק בשבילך.',
+    'החוקרים של Cipher Security Labs מוצאים חולשות בתוכנות של HP, Dell ו־Ericsson. בינואר הם פותחים מחזור של 15 תלמידים בלבד, ובנו אתגר כדי לראות איך מועמדים חושבים. מי שפותר מקבל יתרון משמעותי בקבלה.',
+    'חשוב: פותחים את האתגר במחשב, לא בטלפון. יש שלושה רמזים, ואסור להשתמש ב־AI.',
+    url,
+  ].join('\n\n'),
+  'kid-check': (url) => [
+    'רציתי לשאול אותך משהו לפני שאני מדבר/ת עם Cipher Security Labs.',
+    'תסמן/י לי מה מהרשימה הזאת כבר יש לך. זה לוקח חצי דקה, ומשם אפשר גם לנסות את האתגר שלהם.',
+    url,
+  ].join('\n\n'),
+  partner: (url) => [
+    'תסתכל/י על זה לפני שנדבר: האקדמיה של Cipher Security Labs.',
+    'ההכנה העמוקה ביותר ליחידות הטכנולוגיות, בהובלת חוקרי סייבר פעילים. 15 מקומות בלבד, מתחילים ב־1.1.2027.',
+    url,
+  ].join('\n\n'),
 };
 
+// Every page but the site root lives one folder down (kid/, thanks/), so the
+// same share links work from any of them.
+const ROOT = /\/(?:kid|thanks)\/(?:index\.html)?$/.test(location.pathname) ? '../' : './';
+const LANDING = { kid: `${ROOT}kid/`, 'kid-check': `${ROOT}kid/`, partner: ROOT };
+const HASH = { 'kid-check': '#check' };
+
 function linkFor(target, id) {
-  const base = target === 'kid' ? CONFIG.kidPage : './';
-  const url = new URL(base, location.href);
+  const url = new URL(LANDING[target], location.href);
   url.search = '';
-  url.hash = '';
+  url.hash = HASH[target] || '';
   url.searchParams.set('ref', id);
   url.searchParams.set('utm_source', 'share');
-  url.searchParams.set('utm_medium', target === 'kid' ? 'parent_to_kid' : 'parent_to_partner');
+  url.searchParams.set('utm_medium', target === 'partner' ? 'parent_to_partner' : 'parent_to_kid');
+  if (target === 'kid-check') url.searchParams.set('utm_content', 'prereq_check');
   return url.href;
 }
 
@@ -31,11 +54,13 @@ export function createShare(target, source) {
       keepalive: true,
     }).catch(() => {});
   }
+  // the thank-you page asks "did you send it to them yet?" from this
+  if (target !== 'partner') { try { localStorage.setItem('cipher.sentKid', '1'); } catch { /* fine */ } }
   return { id, url, text: MESSAGES[target](url) };
 }
 
-export function whatsapp(text) {
-  return `https://wa.me/?text=${encodeURIComponent(text)}`;
+export function whatsapp(text, number = '') {
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
 
 export async function copy(text) {

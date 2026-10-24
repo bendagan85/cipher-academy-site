@@ -6,10 +6,11 @@
 <meta name="theme-color" content="#04060a">
 <meta name="robots" content="noindex">
 <title>Cipher · עכשיו תורכם</title>
-<meta name="description" content="אתגר Cipher: משימה אחת, שלושה רמזים. מי שפותר מקבל יתרון משמעותי בקבלה לאקדמיה.">
-<meta property="og:title" content="קיבלתם קישור ל־Cipher. עכשיו תורכם.">
-<meta property="og:description" content="משימה אחת, שלושה רמזים. מי שפותר מקבל יתרון משמעותי בקבלה.">
-<meta property="og:image" content="../assets/img/og-kid.jpg">
+<meta name="description" content="קיבלתם קישור ל־Cipher. אתגר אחד, שלושה רמזים. מי שפותר מקבל יתרון משמעותי בקבלה.">
+<meta property="og:url" content="https://ciphersecurity.co.il/8200/kid/">
+<meta property="og:title" content="קיבלתם קישור. ועכשיו — הזדמנות.">
+<meta property="og:description" content="להראות לחוקרי הסייבר של Cipher Security Labs איך אתם חושבים. אתגר אחד, שלושה רמזים.">
+<meta property="og:image" content="https://ciphersecurity.co.il/8200/assets/img/og-kid.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -17,67 +18,129 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Saira:wght@700&text=01&display=block" rel="stylesheet">
 <link rel="stylesheet" href="../assets/css/site.css">
 <script>document.documentElement.classList.add('js')</script>
 <script src="../assets/vendor/gsap.min.js" defer></script>
+<script src="../assets/vendor/ScrollTrigger.min.js" defer></script>
 <script type="module" src="../assets/js/kid.js"></script>
 </head>
 <body class="kid">
 
-<header class="top">
+<header class="top is-solid">
   <div class="wrap top__in">
     <a class="top__logo" href="#top" aria-label="Cipher Security Academy">
       <img src="../assets/img/logo-wordmark.webp" alt="Cipher Security Academy" width="1000" height="222">
     </a>
-    <a class="top__cta" href="../" data-track="parents_page" data-source="header">לפרטי התכנית</a>
+    <a class="top__cta" href="#challenge" data-track="cta_challenge" data-source="header">לאתגר</a>
   </div>
 </header>
 
 <main id="top">
-  <section class="hero" data-chapter="kid-hero">
+
+  <!-- 1 — the hero: the mark, and the opportunity ───────────────────────── -->
+  <section class="hero kid-hero" data-chapter="kid-hero">
     <canvas class="hero__field" aria-hidden="true"></canvas>
+    <span class="hero__r" aria-hidden="true"></span>
     <div class="wrap">
       <div class="copy">
         <h1 class="display decode">
-          <span class="w">קיבלתם</span> <span class="w">קישור</span> <span class="w">ל־Cipher.</span>
-          <span class="w">עכשיו</span> <span class="w">תורכם.</span>
+          <span class="w">קיבלתם</span> <span class="w">קישור.</span>
+          <span class="w">ועכשיו</span> <span class="w">—</span> <span class="w">הזדמנות.</span>
         </h1>
-        <p class="lead rise">בלי ציונים ובלי קורות חיים. משימה אחת, ואנחנו רואים איך אתם חושבים.</p>
+        <p class="lead rise">להראות לחוקרי הסייבר של <span class="nb">Cipher Security Labs</span> איך אתם חושבים. בלי ציונים ובלי קורות חיים.</p>
         <div class="pair rise">
           <a class="btn btn--solid" href="#challenge" data-track="cta_challenge" data-source="hero">לאתגר</a>
-          <a class="btn btn--line" href="#who" data-track="cta_who" data-source="hero">מי מלמד</a>
+          <a class="btn btn--line" href="#who" data-track="cta_who" data-source="hero">מי שלח לי את זה</a>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- 2 — who / why ───────────────────────────────────────────────────── -->
   <section class="chapter" data-chapter="kid-who" id="who">
+    <div class="wrap">
+      <p class="bridge rise">זו לא עוד הכנה:</p>
+      <h2 class="title split-words">חברת סייבר פעילה שלחה לכם את הקישור הזה.</h2>
+      <p class="lead rise"><span class="nb">Cipher Security Labs</span> היא חברת מחקר סייבר: החוקרים שלה מוצאים חולשות אמיתיות בתוכנות שמיליוני אנשים מתקינים. ב־2026 לבד הם פרסמו יותר מ־<strong class="hot">30 חולשות</strong> מתועדות — ב־<span class="nb">HP</span>, ב־<span class="nb">Dell</span> וב־<span class="nb">Ericsson</span>.</p>
+      <p class="say rise">הם לא קוראים על סייבר. הם עושים אותו. ועכשיו הם בנו אתגר, כדי לראות איך אתם חושבים.</p>
+      <a class="link" href="#challenge" data-track="cta_challenge" data-source="who">ישר לאתגר ↓</a>
+    </div>
+  </section>
+
+  <!-- 3 — what's different ────────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="kid-method">
+    <div class="wrap">
+      <h2 class="title split-words">בכל הכנה לומדים להגן ולתקוף. <em>אצלנו לומדים גם לחקור.</em></h2>
+      <p class="lead rise">למצוא לבד משהו שאף אחד עוד לא מצא — זה מה שמבדיל תלמידי <span class="nb">Cipher</span> ממקומות אחרים שמכינים ליחידות הטכנולוגיות.</p>
+      <a class="link" href="#challenge" data-track="cta_challenge" data-source="method">ישר לאתגר ↓</a>
+    </div>
+  </section>
+
+  <!-- 4 — who teaches ─────────────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="kid-nir" id="nir">
     <div class="wrap split">
       <div>
-        <h2 class="title split-words">ניר מוצא חולשות בתוכנות של HP, Dell ו־Ericsson.</h2>
-        <p class="lead rise">בינואר הוא מתחיל ללמד 15 תלמידים, איך מפרקים מערכת עד שמבינים אותה. אולי אתכם.</p>
+        <p class="bridge rise">מי שילמד אתכם:</p>
+        <h2 class="title split-words"><em>ניר</em> מוצא חולשות שאחרים מפספסים.</h2>
+        <p class="lead rise">ניר יהושע, מייסד שותף ומוביל המחקר ההתקפי ב־<span class="nb">Cipher Security Labs</span>. השם שלו רשום בדיווחי החולשות הרשמיים של <span class="nb">HP</span>, <span class="nb">Dell</span> ו־<span class="nb">Ericsson</span>.</p>
+        <p class="say rise">בינואר הוא מתחיל ללמד 15 תלמידים איך מפרקים מערכת עד שמבינים אותה לעומק. אולי אתכם.</p>
+        <a class="link" href="#challenge" data-track="cta_challenge" data-source="nir">ישר לאתגר ↓</a>
       </div>
       <figure class="nir__photo"><img src="../assets/img/nir.webp" alt="ניר יהושע מרצה בכנס" width="800" height="800" loading="lazy"></figure>
     </div>
   </section>
 
-  <section class="chapter" data-chapter="kid-challenge" id="challenge">
-    <div class="wrap split">
-      <div>
-        <h2 class="title split-words">אתגר Cipher.</h2>
-        <p class="lead rise">משימה אחת, על שרת שהוקם בשביל האתגר. המטרה: למצוא את ה־<span class="mono">FLAG</span>.</p>
-        <p class="lead rise">צריך מחשב. שימוש ב־AI פוסל את האתגר. יש שלושה רמזים, ותקיעה היא לא פסילה. מי שפותר מקבל יתרון משמעותי בקבלה לאקדמיה.</p>
+  <!-- 5 — the program, briefly ────────────────────────────────────────── -->
+  <section class="chapter" data-chapter="kid-program" id="program">
+    <div class="wrap">
+      <h2 class="title split-words">30&nbsp;מפגשים. מעבדות שבהן מתאמנים גם בטכניון.</h2>
+      <p class="lead rise">פעמיים בשבוע, מהבית, עם חוקר אמיתי. מתרגלים במעבדות של <span class="cycube__name ltr">CyCube</span>, שבהן מתאמנים גם סטודנטים בטכניון ואנשי הסייבר של בנק ישראל. ובין המפגשים: קהילת דיסקורד, לא לבד אף פעם.</p>
+      <p class="say rise">למצטיינים: מסלול המשך ב־<span class="re ltr">Reverse Engineering</span>, בקבלה נפרדת.</p>
+      <a class="link" href="#challenge" data-track="cta_challenge" data-source="program">ישר לאתגר ↓</a>
+    </div>
+  </section>
+
+  <!-- 6 — what do you already have ────────────────────────────────────── -->
+  <section class="chapter" data-chapter="kid-check" id="check">
+    <div class="wrap check">
+      <h2 class="check__title title split-words">מה כבר יש לכם?</h2>
+      <p class="check__ask">סמנו מה כבר נכון לגביכם:</p>
+      <div class="check__grid" role="group" aria-label="דרישות הקדם">
+        <button type="button" aria-pressed="false" data-req="python"><span class="ltr">Python</span> בסיסי: לולאות, תנאים, פונקציות</button>
+        <button type="button" aria-pressed="false" data-req="networks">רשתות: <span class="ltr">IP, DNS, HTTP</span></button>
+        <button type="button" aria-pressed="false" data-req="os"><span class="ltr">Windows</span> בביטחון, <span class="ltr">Linux</span> בסיסי</button>
+        <button type="button" aria-pressed="false" data-req="cli">שורת פקודה ומערכת קבצים</button>
+        <button type="button" aria-pressed="false" data-req="english">קוראים תיעוד טכני באנגלית</button>
+        <button type="button" aria-pressed="false" data-req="self">לומדים לבד ולא מוותרים</button>
+        <button type="button" aria-pressed="false" data-req="pc">מחשב שמריץ מכונות וירטואליות</button>
       </div>
-      <div class="ch" data-challenge>
+      <p class="check__say" aria-live="polite">גם אם סימנתם מעט — האתגר פתוח לכולם.</p>
+    </div>
+  </section>
+
+  <!-- 7 — the challenge itself ────────────────────────────────────────── -->
+  <section class="chapter turn" data-chapter="kid-challenge" id="challenge">
+    <div class="wrap">
+      <h2 class="title split-words">עכשיו תורכם.</h2>
+      <p class="lead rise">אתגר <span class="ltr">Cipher</span>: לפרוץ לשרת ייעודי ולהשיג את ה־<span class="ltr">FLAG</span>. ברשותכם שלושה רמזים. אין להשתמש ב־<span class="ltr">AI</span>. <strong>מי שפותר מקבל יתרון משמעותי בקבלה.</strong></p>
+      <div class="turn__play">
+        <div class="lock" data-lock>
+          <canvas class="lock__field" aria-hidden="true"></canvas>
+          <button class="lock__key" type="button" data-lock-open aria-label="התחלת אתגר Cipher"><span>התחלה</span></button>
+        </div>
+        <div class="ch" data-challenge hidden></div>
+        <p class="pc-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v10H4zM2 18h20" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>את האתגר עושים על מחשב, לא בטלפון.</p>
         <noscript><p>האתגר דורש JavaScript.</p></noscript>
       </div>
     </div>
   </section>
 
+  <!-- 8 — if you get in ───────────────────────────────────────────────── -->
   <section class="chapter" data-chapter="kid-in" id="in">
     <div class="wrap">
-      <h2 class="title split-words">מעניין אתכם? תגידו להורים.</h2>
-      <p class="lead rise">ההורים שלכם קיבלו מאיתנו את כל הפרטים. מה שחסר להם זה לשמוע שזה מגיע מכם.</p>
+      <h2 class="title split-words">אם תתקבלו, זה לא נגמר ביחידה.</h2>
+      <p class="lead rise">הידע הזה לא נשאר ברקע לעולם. הוא ממשיך איתכם — גם בצבא, וגם אחרי. ההורים שלכם כבר קיבלו מאיתנו את כל הפרטים. מה שחסר להם זה לשמוע שזה מגיע מכם.</p>
       <div class="pair rise kid-in">
         <button class="btn btn--solid" type="button" data-tell-parent>אני בפנים: שולחים להורים</button>
         <a class="btn btn--line" href="../" data-track="parents_page" data-source="kid-in">לפרטי התכנית</a>

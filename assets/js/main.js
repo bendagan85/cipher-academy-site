@@ -2,8 +2,12 @@
 import { track, watchChapters } from './track.js';
 import { createShare, whatsapp, copy, reportOpen } from './share.js';
 import { createVortex } from './vortex.js';
+import { mountFilm } from './film.js';
 import { createSystem } from './layers.js';
+import { createGates } from './gates.js';
+import { mountChallenge } from './challenge.js';
 import { mountQuiz } from './quiz.js';
+import { PREREQ_KEY } from './diagnosis.js';
 import { decode, reveals, reduce } from './motion.js';
 
 const fine = matchMedia('(pointer: fine)').matches;
@@ -40,7 +44,7 @@ const top = $('.top');
 const dock = $('.dock');
 let pastHero = false, nearEnd = false;
 function syncDock() {
-  const on = pastHero && !nearEnd && !$('dialog[open]');
+  const on = pastHero && !nearEnd && !$('dialog[open]') && !document.documentElement.classList.contains('is-locked');
   dock.classList.toggle('is-on', on);
   dock.setAttribute('aria-hidden', String(!on));
   $$('a, button', dock).forEach((el) => (el.tabIndex = on ? 0 : -1));
@@ -49,16 +53,26 @@ addEventListener('scroll', () => top.classList.toggle('is-solid', scrollY > 40),
 new IntersectionObserver(([e]) => { pastHero = !e.isIntersecting; syncDock(); }, { threshold: 0.15 }).observe($('.hero'));
 new IntersectionObserver((es) => { nearEnd = es.some((e) => e.isIntersecting); syncDock(); }).observe($('#fit'));
 
-/* ── hero: the mark assembles, the headline decodes ───────────────────── */
-createVortex($('.hero__field'), {
-  layout: (w, h) => (w >= 900
-    ? { cx: w * 0.27, cy: h * 0.52, R: Math.min(h * 0.34, w * 0.22) }
-    : { cx: w * 0.5, cy: Math.max(190, h * 0.315), R: Math.min(w * 0.45, h * 0.235) }),
-});
-
-decode($('.hero .decode'), 900).then(() => {
-  gsap.to('.hero .rise', { opacity: 1, y: 0, duration: reduce ? 0 : 0.8, stagger: 0.12, ease: 'power3.out' });
-});
+/* ── hero: the mark assembles, then the film opens in its keyhole ─────── */
+{
+  // On phones the mark's radius comes from CSS (.hero__r), which also places
+  // the copy under it — so nothing jumps when the script arrives.
+  const probe = $('.hero__r');
+  const mark = createVortex($('.hero__field'), {
+    layout: (w, h) => {
+      if (w >= 900) {
+        const R = Math.min(h * 0.27, w * 0.19, 290);
+        return { cx: w * 0.27, cy: h * 0.5 + R * 0.02, R };
+      }
+      const R = probe.getBoundingClientRect().width || Math.min(w * 0.4, 170);
+      return { cx: w / 2, cy: 132 + 1.123 * R, R };
+    },
+  });
+  mountFilm($('.film'), mark);
+  decode($('.hero .decode'), 900).then(() => {
+    gsap.to('.hero .rise', { opacity: 1, y: 0, duration: reduce ? 0 : 0.8, stagger: 0.1, ease: 'power3.out' });
+  });
+}
 
 /* ── reveals ───────────────────────────────────────────────────────────── */
 reveals();
@@ -128,7 +142,7 @@ function autoplay(el, ms, step) {
   const SAY = [
     '<strong>מבחוץ:</strong> מורידים, לוחצים "המשך", והמדפסת מותקנת. כמעט אף אחד לא חושב על זה פעמיים.',
     '<strong>מבפנים:</strong> ניר בדק לעומק מה התוכנה עושה ברגע שלוחצים על הכפתור. בדיוק את הדרך הזו מלמדים בתכנית.',
-    '<strong>שלוש חולשות בדרגת חומרה גבוהה.</strong> סייפר דיווחה, HP תיקנה ופרסמה עדכון אבטחה, והקרדיט רשום על שמו של ניר.'
+    '<strong>שלוש חולשות בדרגת חומרה גבוהה.</strong> Cipher דיווחה, HP תיקנה ופרסמה עדכון אבטחה, והקרדיט רשום על שמו של ניר.'
       + '<span class="cves mono">' + ['12554', '12555', '12556'].map((n) => `<a href="https://www.cve.org/CVERecord?id=CVE-2026-${n}" target="_blank" rel="noopener" data-track="proof_link" data-target="cve-${n}">CVE-2026-${n}</a>`).join('') + '</span>',
   ];
   function set(n, auto) {
@@ -141,9 +155,12 @@ function autoplay(el, ms, step) {
   let n = 0;
   const stop = autoplay(hp, 3200, () => { n++; set(n, true); if (n === 2) stop(); });
   tabs.forEach((t) => t.addEventListener('click', () => { stop(); set(+t.dataset.step, false); }));
+
+  // the press strip drifts in, card after card
+  if (!reduce) whenSeen($('.press__rail'), () => gsap.fromTo('.story', { x: -24, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, stagger: 0.08, ease: 'power3.out' }), 0.3);
 }
 
-/* ── program: the loop between sessions, and the lab ──────────────────── */
+/* ── program: the loop between sessions, the lab, and the depth gauge ─── */
 {
   const nodes = $$('.loop__node');
   const say = $('.loop__say');
@@ -183,45 +200,70 @@ function autoplay(el, ms, step) {
     steps.forEach((el, j) => el.classList.toggle('is-on', j === s));
     line.textContent = LAB[s];
   });
+
+  // the syllabus as a descent: the further you swipe, the deeper it gets
+  const depth = $('.depth');
+  const rail = $('.depth__rail');
+  let swiped = false;
+  rail.addEventListener('scroll', () => {
+    const max = rail.scrollWidth - rail.clientWidth;
+    const p = max > 0 ? Math.min(1, Math.abs(rail.scrollLeft) / max) : 0;
+    depth.style.setProperty('--deep', p.toFixed(3));
+    if (!swiped && p > 0.15) { swiped = true; track('syllabus_swipe'); }
+  }, { passive: true });
+  if (!reduce) {
+    whenSeen(rail, () => gsap.fromTo('.tier', { y: -18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, stagger: 0.16, ease: 'power3.out' }), 0.3);
+  }
 }
 
-/* ── the filter: what they need to know already ───────────────────────── */
+/* ── the filter: who gets in, and what they need to know already ──────── */
 {
+  createGates($('.gates__flow'), $$('.gates__steps li'));
+
   const buttons = $$('.check__grid button');
+  const reqs = buttons.filter((b) => b.dataset.req !== 'unsure');
+  const unsure = $('.check__grid [data-req="unsure"]');
   const say = $('.check__say');
+  const send = $('.check__send');
   let reported = 0;
-  function verdict(n) {
-    if (n === 0) return 'סמנו מה כבר נכון לגביהם.';
-    if (n >= 7) return `${n} מתוך 8. נשמע מוכן: בדיקת ההתאמה היא הצעד הבא.`;
-    if (n >= 4) return `${n} מתוך 8. קרוב. בשיחה נבדוק מה חסר, ואם כדאי להתחיל במסלול ההכנה.`;
-    return `${n} מתוך 8. מתחילים במסלול ההכנה, ומשם ממשיכים לראיון.`;
+  function verdict(n, isUnsure) {
+    if (isUnsure) return 'הכי מדויק שהם יסמנו בעצמם. שלחו להם את הרשימה: הם יסמנו, ויוכלו לשלוח לכם את התשובות.';
+    if (n === 0) return 'כל סימון משנה את הצעד הבא שנציע לכם.';
+    if (n >= 6) return `${n} מתוך ${reqs.length}. נשמע מוכן: בדיקת ההתאמה היא הצעד הבא.`;
+    if (n >= 3) return `${n} מתוך ${reqs.length}. קרוב. בשיחה נבדוק מה חסר, ואם כדאי להתחיל במסלול ההכנה.`;
+    return `${n} מתוך ${reqs.length}. מתחילים במסלול ההכנה, ומשם חוזרים לשלבי הקבלה.`;
+  }
+  function sync(changed) {
+    const on = reqs.filter((x) => x.getAttribute('aria-pressed') === 'true');
+    const isUnsure = unsure.getAttribute('aria-pressed') === 'true';
+    say.textContent = verdict(on.length, isUnsure);
+    send.hidden = !isUnsure;
+    const state = { n: on.length, of: reqs.length, items: on.map((x) => x.dataset.req), unsure: isUnsure };
+    try { sessionStorage.setItem(PREREQ_KEY, JSON.stringify(state)); } catch { /* fine */ }
+    dispatchEvent(new Event('cipher:prereq'));
+    if (changed) {
+      track('prereq_toggle', { req: changed.dataset.req, on: changed.getAttribute('aria-pressed') === 'true', count: on.length });
+      clearTimeout(reported);
+      reported = setTimeout(() => track('prereq_result', { count: on.length, unsure: isUnsure, items: state.items.join(',') }), 1500);
+    }
   }
   buttons.forEach((b) => b.addEventListener('click', () => {
-    const on = b.getAttribute('aria-pressed') !== 'true';
-    b.setAttribute('aria-pressed', String(on));
-    const n = buttons.filter((x) => x.getAttribute('aria-pressed') === 'true').length;
-    say.textContent = verdict(n);
-    track('prereq_toggle', { req: b.dataset.req, on, count: n });
-    clearTimeout(reported);
-    reported = setTimeout(() => track('prereq_result', { count: n, items: buttons.filter((x) => x.getAttribute('aria-pressed') === 'true').map((x) => x.dataset.req).join(',') }), 1500);
+    b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
+    sync(b);
   }));
   whenSeen($('.price'), () => track('price_view'), 0.6);
 }
 
-/* ── their turn: the mark comes back, and the keyhole opens ───────────── */
-{
-  const field = $('.turn__field');
-  const v = createVortex(field, {
-    intro: false,
-    layout: (w, h) => ({ cx: w / 2, cy: h * 0.5, R: Math.min(w * 0.3, h * 0.42) }),
-  });
-  v.ready.then(() => {
-    ScrollTrigger.create({
-      trigger: field, start: 'top 85%', end: 'bottom 35%',
-      onUpdate: (st) => v.setGap(1.0 + st.progress * 1.3),
-    });
-  });
-}
+/* ── their turn: the mark guards the challenge ────────────────────────── */
+mountChallenge($('.turn [data-lock]'), $('.turn [data-challenge]'), {
+  source: 'parents',
+  onSolved(root) {
+    root.innerHTML = `
+      <p class="ch__mission">פתרתם. זה בדיוק מה שאנחנו מחפשים.</p>
+      <p class="lead">ספרו לנו בבדיקת ההתאמה, ונדבר.</p>
+      <a class="btn btn--solid ch__go" href="#fit" data-track="cta_fit" data-source="solved">לבדיקת ההתאמה</a>`;
+  },
+});
 
 /* ── sharing ──────────────────────────────────────────────────────────── */
 const shareSheet = $('#share');
@@ -239,7 +281,15 @@ $$('dialog').forEach((d) => {
 document.addEventListener('click', async (e) => {
   const opener = e.target.closest('[data-open-share]');
   if (opener) { openSheet(shareSheet, opener.dataset.openShare); return; }
-  if (e.target.closest('[data-open-syllabus]')) { openSheet(syllabus, 'program'); return; }
+
+  const chapter = e.target.closest('[data-chapter-n]');
+  if (chapter) {
+    const n = chapter.dataset.chapterN;
+    $$('.syl details', syllabus).forEach((d) => { d.open = d.dataset.n === n; });
+    openSheet(syllabus, `chapter-${n}`);
+    syllabus.querySelector(`details[data-n="${n}"]`)?.scrollIntoView({ block: 'center' });
+    return;
+  }
 
   const now = e.target.closest('[data-share-now]');
   if (now) {
@@ -256,7 +306,7 @@ document.addEventListener('click', async (e) => {
     const ok = await copy(url);
     track('link_copied', { target: 'kid', ok });
     const note = cp.closest('.sheet__in, .chapter')?.querySelector('[data-copy-note]');
-    if (note) note.textContent = ok ? 'הקישור הועתק. אפשר להדביק אותו בכל הודעה.' : 'לא הצלחנו להעתיק. נסו לשלוח בוואטסאפ.';
+    if (note) note.textContent = ok ? 'הקישור הועתק. את האתגר פותחים במחשב.' : 'לא הצלחנו להעתיק. נסו לשלוח בוואטסאפ.';
     return;
   }
 

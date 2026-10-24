@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>og card</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Saira:wght@700&text=01&display=block" rel="stylesheet">
 <link rel="stylesheet" href="../assets/css/site.css">
 <style>
   /* the WhatsApp / Facebook preview card: 1200×630, shot by tools/og.mjs */
@@ -28,9 +29,9 @@
   import { createVortex } from '../assets/js/vortex.js';
   const kid = new URLSearchParams(location.search).get('v') === 'kid';
   const h = document.getElementById('h');
-  if (kid) h.append('קיבלתם קישור ל־Cipher.', document.createElement('br'), 'עכשיו תורכם.');
-  else h.textContent = 'הכנה ליחידות הטכנולוגיות, מתוך חברת סייבר פעילה.';
-  document.getElementById('p').textContent = kid ? 'משימה אחת, שלושה רמזים.' : '15 מקומות.';
+  if (kid) h.append('קיבלתם קישור.', document.createElement('br'), 'ועכשיו — הזדמנות.');
+  else h.append('ההכנה העמוקה ביותר', document.createElement('br'), 'ליחידות הטכנולוגיות.');
+  document.getElementById('p').textContent = kid ? 'משימה אחת, שלושה רמזים.' : '15 מקומות בלבד.';
   createVortex(document.querySelector('canvas'), { layout: (w, h) => ({ cx: w * 0.25, cy: h * 0.5, R: h * 0.4 }) });
 </script>
 </body>

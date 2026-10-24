@@ -1,43 +1,40 @@
-// The fit check: four questions, an honest answer, then the lead form.
-// The answers route the conversation; they are never a score or an admission.
+// The fit check: four questions, then the contact details. A button sits under
+// it from the first question, greyed, so it is clear there is somewhere this
+// leads; once only the details are left it wakes up, worded for these answers.
+// The diagnosis itself waits for the thank-you page.
 import { CONFIG } from './config.js';
 import { track, journey, summary } from './track.js';
+import { diagnose, readPrereq, CTA, THANKS_KEY } from './diagnosis.js';
 
 const QUESTIONS = [
   { key: 'grade', q: 'באיזו כיתה הם?', opts: [['9', 'ט׳'], ['10', 'י׳'], ['11', 'י״א'], ['12', 'י״ב'], ['other', 'אחר']] },
   { key: 'practice', q: 'מה הם כבר עשו בעצמם?', opts: [['built', 'כתבו קוד בעצמם, בלי שאמרו להם'], ['class', 'למדו תכנות במסגרת'], ['curious', 'סקרנים, עוד לא כתבו קוד'], ['unsure', 'לא בטוחים']] },
-  { key: 'drive', q: 'מי רוצה את זה יותר?', opts: [['kid', 'הם'], ['both', 'שנינו'], ['me', 'בעיקר אני']] },
-  { key: 'budget', q: `התכנית עולה ${CONFIG.cohort.price}. זה רלוונטי עבורכם?`, opts: [['yes', 'כן'], ['think', 'צריך לחשוב על זה'], ['no', 'לא כרגע']] },
+  { key: 'drive', q: 'למי יותר חשוב להגיע ליחידות הטכנולוגיות?', opts: [['kid', 'להם'], ['me', 'בעיקר לי'], ['both', 'לשנינו']] },
+  { key: 'why', q: 'למה אתם מחפשים עבורם הכנה?', opts: [['edge', 'שיגיעו למיונים עם יתרון אמיתי'], ['elite', 'שיכוונו ליחידות המובחרות ב־8200'], ['extra', 'בשביל ידע משלים, נוסף ללימודים'], ['checking', 'רק בודקים בינתיים']] },
 ];
-
-// One honest next step per situation. `form: false` means we don't ask for details.
-const ROUTES = {
-  ready: { title: 'יש בסיס להמשך.', text: 'נשמע שהם עשו דרך משלהם, ושהרצון מגיע מהם. נחזור אליכם לשיחת טלפון קצרה, ומשם לראיון.', form: true },
-  prep: { title: 'מתחילים במסלול ההכנה.', text: 'בונים את הבסיס שחסר, ומי שעובר את המבחן בסופו ממשיך ישר לראיון. נחזור אליכם עם הפרטים.', form: true },
-  talk: { title: 'נשלים את התמונה בשיחה.', text: 'לא צריך לדעת הכול כדי להתקדם. נחזור אליכם לשיחה קצרה ונבדוק יחד מה הצעד הנכון.', form: true },
-  them: { title: 'קודם, תנו להם לנסות.', text: 'הרצון שלהם חשוב לנו לא פחות מהידע. שלחו להם את האתגר. אם זה תופס אותם, הם יגיעו אליכם.', form: false, share: true },
-  young: { title: 'עוד מוקדם, וזה טוב.', text: 'המחזור מיועד לכיתות י׳–י״ב. השאירו פרטים ונחזור אליכם לקראת המחזור הבא.', form: true },
-  budget: { title: 'תודה על הכנות.', text: 'אנחנו מעדיפים לומר את המחיר מראש. אם זה ישתנה, נשמח לשמוע מכם.', form: false },
-};
-
-function route(a) {
-  if (a.budget === 'no') return 'budget';
-  if (a.grade === '9') return 'young';
-  if (a.drive === 'me') return 'them';
-  if (a.grade === 'other' || a.practice === 'unsure' || a.budget === 'think') return 'talk';
-  if (a.practice === 'curious') return 'prep';
-  return 'ready';
-}
+const WAITING = 'בסוף 4 השאלות: הצעד הבא שלכם';
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 export function mountQuiz(root) {
   const answers = {};
   let step = 0, started = false, leadSent = false;
+  root.innerHTML = `
+    <div class="fit__stage"></div>
+    <button class="btn btn--solid fit__go" type="submit" form="fit-form" disabled aria-disabled="true">${WAITING}</button>`;
+  const stage = root.querySelector('.fit__stage');
+  const go = root.querySelector('.fit__go');
+
+  function wake(on) {
+    go.disabled = !on;
+    go.setAttribute('aria-disabled', String(!on));
+    go.textContent = on ? CTA[diagnose(answers, readPrereq())] : WAITING;
+  }
 
   function renderQuestion() {
     const { key, q, opts } = QUESTIONS[step];
-    root.innerHTML = `
+    wake(false);
+    stage.innerHTML = `
       <p class="fit__count">שאלה ${step + 1} מתוך ${QUESTIONS.length}</p>
       <h3 class="fit__q" tabindex="-1">${esc(q)}</h3>
       <div class="fit__opts" role="group" aria-label="${esc(q)}">
@@ -46,32 +43,27 @@ export function mountQuiz(root) {
       <div class="fit__nav">${step ? '<button class="fit__back" type="button" data-back>חזרה</button>' : '<span></span>'}</div>`;
   }
 
-  function renderResult() {
-    const r = route(answers);
-    const R = ROUTES[r];
-    track('quiz_result', { route: r, ...answers });
-    root.innerHTML = `
-      <div class="fit__result">
-        <h3 tabindex="-1">${esc(R.title)}</h3>
-        <p>${esc(R.text)}</p>
-        ${R.share ? '<div class="pair" style="margin-block-start:18px"><button class="btn btn--solid" type="button" data-share-now="kid" data-source="quiz">שלחו להם את האתגר</button><button class="btn btn--line" type="button" data-show-form>להשאיר פרטים בכל זאת</button></div>' : ''}
-        ${!R.form && !R.share ? '<div class="fit__nav"><button class="fit__back" type="button" data-show-form>להשאיר פרטים בכל זאת</button></div>' : ''}
-        <form class="form" novalidate ${R.form ? '' : 'hidden'}>
-          <label>שם ההורה<input type="text" name="name" autocomplete="name" required maxlength="80"></label>
-          <label>טלפון<input type="tel" name="phone" autocomplete="tel" inputmode="tel" required maxlength="20" dir="ltr"></label>
-          <label>אימייל (לא חובה)<input type="email" name="email" autocomplete="email" maxlength="120" dir="ltr"></label>
-          <label class="hp-field" aria-hidden="true">Company<input type="text" name="company" tabindex="-1" autocomplete="off"></label>
-          <label class="agree"><input type="checkbox" name="agree" required> <span>מאשרים שנחזור אליכם לגבי התכנית.</span></label>
-          <p class="form__err" aria-live="assertive"></p>
-          <button class="btn btn--solid" type="submit">לשיחה עם צוות סייפר</button>
-          <button class="fit__back" type="button" data-restart>לענות מחדש</button>
-        </form>
-      </div>`;
-    root.dataset.route = r;
+  function renderForm() {
+    const segment = diagnose(answers, readPrereq());
+    root.dataset.route = segment;
+    track('quiz_result', { route: segment, ...answers });
+    stage.innerHTML = `
+      <h3 class="fit__q" tabindex="-1">נשאר רק לומר לנו איך לחזור אליכם.</h3>
+      <form class="form" id="fit-form" novalidate>
+        <label>שם ההורה<input type="text" name="name" autocomplete="name" required maxlength="80"></label>
+        <label>טלפון<input type="tel" name="phone" autocomplete="tel" inputmode="tel" required maxlength="20" dir="ltr"></label>
+        <label>אימייל (לא חובה)<input type="email" name="email" autocomplete="email" maxlength="120" dir="ltr"></label>
+        <label class="hp-field" aria-hidden="true">Company<input type="text" name="company" tabindex="-1" autocomplete="off"></label>
+        <label class="agree"><input type="checkbox" name="agree" required> <span>מאשרים שנחזור אליכם לגבי התכנית.</span></label>
+        <p class="form__err" aria-live="assertive"></p>
+      </form>
+      <div class="fit__nav"><button class="fit__back" type="button" data-restart>לענות מחדש</button><span></span></div>`;
+    wake(true);
+    track('lead_form_view', { route: segment });
   }
 
   function focusTop() {
-    const h = root.querySelector('h3');
+    const h = stage.querySelector('h3');
     h?.focus({ preventScroll: true });
     const top = root.getBoundingClientRect().top;
     if (top < 60 || top > innerHeight * 0.6) {
@@ -99,12 +91,15 @@ export function mountQuiz(root) {
     if (leadSent) return;
     leadSent = true;
 
+    const prereq = readPrereq();
+    const segment = diagnose(answers, prereq);
     const lead = {
       name: data.name.trim(),
       phone: data.phone.trim(),
       email: (data.email || '').trim() || null,
       answers: { ...answers },
-      route: root.dataset.route,
+      prereq,
+      segment,
       ref: journey.ref,
       visitor: journey.visitor,
       utm: journey.utm,
@@ -112,9 +107,8 @@ export function mountQuiz(root) {
       page: location.href,
       ts: new Date().toISOString(),
     };
-    const button = form.querySelector('[type="submit"]');
-    button.disabled = true;
-    button.textContent = 'שולחים…';
+    go.disabled = true;
+    go.textContent = 'שולחים…';
     let ok = true;
     if (CONFIG.api.leads) {
       try {
@@ -127,23 +121,18 @@ export function mountQuiz(root) {
     }
     if (!ok) {
       leadSent = false;
-      button.disabled = false;
-      button.textContent = 'לשיחה עם צוות סייפר';
+      wake(true);
       err.textContent = 'משהו לא עבר. נסו שוב בעוד רגע.';
-      track('lead_error', { route: lead.route });
+      track('lead_error', { route: segment });
       return;
     }
-    track('lead_submit', { route: lead.route, demo: !CONFIG.api.leads });
-    root.innerHTML = `
-      <div class="fit__result">
-        <h3 tabindex="-1">קיבלנו. נחזור אליכם בימים הקרובים.</h3>
-        <p>אם עוד לא שלחתם להם את האתגר, זה הזמן. מי שפותר מגיע לראיון עם יתרון.</p>
-        <div class="pair" style="margin-block-start:18px">
-          <button class="btn btn--solid" type="button" data-share-now="kid" data-source="success">שלחו להם את האתגר</button>
-          <button class="btn btn--line" type="button" data-share-now="partner" data-source="success">שלחו לבן/בת הזוג</button>
-        </div>
-      </div>`;
-    focusTop();
+    track('lead_submit', { route: segment, demo: !CONFIG.api.leads });
+    // the thank-you page reads this to say what the answers mean
+    try {
+      sessionStorage.setItem(THANKS_KEY, JSON.stringify({ first: lead.name.split(/\s+/)[0], answers: lead.answers, prereq, segment, ts: lead.ts }));
+    } catch { /* the page falls back to its general version */ }
+    document.documentElement.classList.add('is-leaving');
+    setTimeout(() => { location.href = new URL(CONFIG.thanksPage, location.href).href; }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 380);
   }
 
   root.addEventListener('click', (e) => {
@@ -156,24 +145,17 @@ export function mountQuiz(root) {
       opt.setAttribute('aria-pressed', 'true');
       setTimeout(() => {
         step++;
-        if (step < QUESTIONS.length) renderQuestion(); else renderResult();
+        if (step < QUESTIONS.length) renderQuestion(); else renderForm();
         focusTop();
       }, 180);
       return;
     }
     if (e.target.closest('[data-back]')) { step = Math.max(0, step - 1); renderQuestion(); focusTop(); return; }
-    if (e.target.closest('[data-restart]')) { step = 0; renderQuestion(); focusTop(); track('quiz_restart'); return; }
-    if (e.target.closest('[data-show-form]')) {
-      const form = root.querySelector('form');
-      form.hidden = false;
-      e.target.closest('[data-show-form]').parentElement.hidden = true;
-      track('lead_form_open', { route: root.dataset.route });
-      form.querySelector('input')?.focus();
-      return;
-    }
-    // [data-share-now] buttons are handled by the page-wide share handler in main.js
+    if (e.target.closest('[data-restart]')) { step = 0; renderQuestion(); focusTop(); track('quiz_restart'); }
   });
   root.addEventListener('submit', (e) => { e.preventDefault(); submit(e.target); });
+  // the prerequisite ticks can change after the form shows: keep the button's words current
+  addEventListener('cipher:prereq', () => { if (!go.disabled && !leadSent) go.textContent = CTA[diagnose(answers, readPrereq())]; });
 
   renderQuestion();
 }

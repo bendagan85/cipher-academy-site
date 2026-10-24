@@ -1,70 +1,73 @@
-// The Cipher mark as a live field of 0/1 glyphs.
-// Same geometry as the logo: rows of digits growing outward, white on the
-// left half, blue on the right, a cyan seam at the top, and a gap at the
-// bottom that turns the empty centre into a keyhole.
+// The Cipher mark as a live field of 0/1 glyphs, every digit where the logo
+// has it (mark-layout.js). It assembles on first view, sways a little, makes
+// way for a finger, and can scatter and come back together. The empty middle
+// is a keyhole: the hero plays its film there, and the challenge chapter turns
+// it into the start button.
+import { MARK, KEYHOLE, EXTENT } from './mark-layout.js';
 
-const SPR = 96;
+const SPR = 192;
+const FONT = `700 ${SPR * 0.62}px Saira, Heebo, system-ui, sans-serif`;
 let sprites = null;
+let unit = 1; // sprite pixels per glyph height (the visible height of "0")
 
 function sprite(ch, color) {
   const c = document.createElement('canvas');
   c.width = c.height = SPR;
   const g = c.getContext('2d');
-  g.font = `700 ${SPR * 0.8}px Heebo, system-ui, sans-serif`;
+  g.font = FONT;
   g.textAlign = 'center';
-  g.textBaseline = 'middle';
+  g.textBaseline = 'alphabetic';
+  const m = g.measureText(ch);
   g.fillStyle = color;
-  g.fillText(ch, SPR / 2, SPR / 2 + SPR * 0.05);
+  // the digit's visual centre on the sprite's centre
+  g.fillText(ch, SPR / 2, SPR / 2 + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2);
+  if (ch === '0') unit = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
   return c;
 }
 
 function buildSprites() {
   sprites = {};
-  for (const [k, col] of [['w', '#eef1f6'], ['b', '#2b6cff'], ['c', '#62ccff']]) {
+  for (const [k, col] of [['w', '#f4f6fa'], ['b', '#0a6cff']]) {
     sprites[k + '0'] = sprite('0', col);
     sprites[k + '1'] = sprite('1', col);
   }
 }
 
-const ease = (p) => 1 - Math.pow(1 - p, 3);
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const easeOut = (p) => 1 - Math.pow(1 - p, 3);
+const easeInOut = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
 
 /**
  * @param {HTMLCanvasElement} canvas
  * @param {object} o
- * @param {(w:number,h:number)=>{cx:number,cy:number,R:number}} o.layout
- * @param {number} [o.gap]   bottom opening in radians; setGap() animates it
- * @param {boolean} [o.intro] scatter → assemble on first view
+ * @param {(w:number,h:number)=>{cx:number,cy:number,R:number}} o.layout  centre and outer radius, CSS px
+ * @param {boolean} [o.intro]  fly in from scattered on first view
  */
-export function createVortex(canvas, { layout, rows = 12, gap = 1.0, intro = true } = {}) {
+export function createVortex(canvas, { layout, intro = true } = {}) {
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, DPR = 1, cx = 0, cy = 0, R = 0;
-  let glyphs = [];
   let raf = 0, visible = false, t0 = 0, introDone = !intro || reduce;
-  let curGap = gap, targetGap = gap;
+  let open = 0, openTarget = 0;
+  const scat = { v: 0, from: 0, to: 0, t: 0, ms: 900, done: null };
+  const glow = { r: 31, g: 99, b: 255, a: 0.2, tr: 31, tg: 99, tb: 255, ta: 0.2 };
   const pointer = { x: -1e4, y: -1e4 };
+  let resolveAssembled;
+  const assembled = new Promise((r) => { resolveAssembled = r; });
+  if (introDone) resolveAssembled();
 
-  function build() {
-    glyphs = [];
-    for (let k = 0; k < rows; k++) {
-      const t = k / (rows - 1);
-      const r = 0.42 + 0.58 * t;
-      const size = 0.044 + 0.058 * t;
-      // count for the default opening, so density stays put while the gap moves
-      const span = Math.PI * 2 - gap;
-      const n = Math.floor((span * r) / (size * 0.98));
-      for (let i = 0; i < n; i++) {
-        glyphs.push({
-          u: (i + 0.5) / n, t, r, size, row: k,
-          d: Math.random() < 0.66 ? '0' : '1',
-          sx: Math.random(), sy: Math.random(),
-          ox: 0, oy: 0,
-          delay: 0.1 + Math.random() * 0.55 + t * 0.35,
-          alpha: 0.62 + 0.38 * t,
-        });
-      }
-    }
-  }
+  const glyphs = MARK.map(([x, y, s, rot, d, c]) => {
+    const dist = Math.hypot(x, y);
+    return {
+      x, y, s, rot, d, c: c ? 'b' : 'w', dist,
+      ux: x / (dist || 1), uy: y / (dist || 1),
+      sx: Math.random(), sy: Math.random(),
+      kick: 0.55 + Math.random() * 0.9,
+      delay: 0.08 + Math.random() * 0.5 + dist * 0.38,
+      ox: 0, oy: 0, flipUntil: 0,
+    };
+  });
+  const introEnd = Math.max(...glyphs.map((g) => g.delay)) + 1.1;
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
@@ -74,64 +77,85 @@ export function createVortex(canvas, { layout, rows = 12, gap = 1.0, intro = tru
     canvas.width = Math.round(W * DPR);
     canvas.height = Math.round(H * DPR);
     ({ cx, cy, R } = layout(W, H));
+    for (const fn of resized) fn();
     if (!raf) draw(performance.now());
   }
+  const resized = new Set();
 
   function draw(now) {
-    if (!sprites || !W) return;
-    const time = (now - t0) / 1000;
-    curGap += (targetGap - curGap) * 0.06;
-    const start = Math.PI / 2 + curGap / 2, span = Math.PI * 2 - curGap;
+    if (!sprites || !W) return false;
+    const time = t0 ? (now - t0) / 1000 : 0;
+    let busy = false;
+
+    open += (openTarget - open) * 0.08;
+    if (Math.abs(openTarget - open) > 0.002) busy = true;
+    if (scat.v !== scat.to) {
+      const p = scat.ms ? clamp01((now - scat.t) / scat.ms) : 1;
+      scat.v = scat.from + (scat.to - scat.from) * easeInOut(p);
+      if (p >= 1) { scat.v = scat.to; scat.done?.(); scat.done = null; } else busy = true;
+    }
+    for (const k of ['r', 'g', 'b', 'a']) glow[k] += (glow['t' + k] - glow[k]) * 0.06;
 
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    const glow = ctx.createRadialGradient(cx + R * 0.35, cy, R * 0.1, cx + R * 0.2, cy, R * 1.6);
-    glow.addColorStop(0, 'rgba(31, 99, 255, 0.20)');
-    glow.addColorStop(1, 'rgba(31, 99, 255, 0)');
-    ctx.fillStyle = glow;
+    const halo = ctx.createRadialGradient(cx, cy, R * 0.1, cx, cy, R * 1.65);
+    halo.addColorStop(0, `rgba(${glow.r | 0}, ${glow.g | 0}, ${glow.b | 0}, ${glow.a})`);
+    halo.addColorStop(1, `rgba(${glow.r | 0}, ${glow.g | 0}, ${glow.b | 0}, 0)`);
+    ctx.fillStyle = halo;
     ctx.fillRect(0, 0, W, H);
 
+    const sc = easeInOut(scat.v);
     for (const g of glyphs) {
-      // rings turn a little against each other, like the wheels of a cipher disk
-      const sway = reduce ? 0 : 0.05 * Math.sin(time * 0.55 + g.row * 0.7);
-      const a = start + g.u * span - 0.20 * g.t + sway;
-      const hx = cx + Math.cos(a) * g.r * R;
-      const hy = cy + Math.sin(a) * g.r * R;
+      // the rings breathe against each other like the wheels of a cipher disk
+      const sway = reduce ? 0 : 0.012 * Math.sin(time * 0.6 + g.dist * 5.2);
+      const cs = Math.cos(sway), sn = Math.sin(sway);
+      let hx = g.x * cs - g.y * sn, hy = g.x * sn + g.y * cs;
+      // the keyhole opens: the lower half steps aside
+      if (open > 0.001 && g.y > 0) { const k = open * g.y; hx += Math.sign(g.x) * k * 0.2; hy += k * 0.05; }
+      // scatter: out along the spoke, further for the outer digits
+      if (sc > 0) { hx += g.ux * sc * g.kick * 1.35; hy += g.uy * sc * g.kick * 1.35; }
+      const homeX = cx + hx * R, homeY = cy + hy * R;
 
-      const p = introDone ? 1 : Math.min(1, Math.max(0, (time - g.delay) / 1.15));
-      const e = ease(p);
-      let x = g.sx * W + (hx - g.sx * W) * e;
-      let y = g.sy * H + (hy - g.sy * H) * e;
+      const p = introDone ? 1 : clamp01((time - g.delay) / 1.1);
+      const e = easeOut(p);
+      let x = g.sx * W + (homeX - g.sx * W) * e;
+      let y = g.sy * H + (homeY - g.sy * H) * e;
 
       // a finger pushes the digits aside; they spring back
       const dx = x - pointer.x, dy = y - pointer.y, dist = Math.hypot(dx, dy);
-      const reach = 78;
-      const tx = dist < reach ? (dx / (dist || 1)) * (reach - dist) * 0.7 : 0;
-      const ty = dist < reach ? (dy / (dist || 1)) * (reach - dist) * 0.7 : 0;
+      const reach = Math.max(60, R * 0.42);
+      const tx = dist < reach ? (dx / (dist || 1)) * (reach - dist) * 0.6 : 0;
+      const ty = dist < reach ? (dy / (dist || 1)) * (reach - dist) * 0.6 : 0;
       g.ox += (tx - g.ox) * 0.14;
       g.oy += (ty - g.oy) * 0.14;
+      if (Math.abs(g.ox) + Math.abs(g.oy) > 0.3) busy = true;
       x += g.ox; y += g.oy;
 
-      // the cipher never sits still: a few digits flip every second
-      if (!reduce && p === 1 && Math.random() < 0.0016) g.d = g.d === '0' ? '1' : '0';
+      // a digit flips now and then, and flips back: alive, but always the logo at rest
+      if (!reduce && p === 1 && !g.flipUntil && Math.random() < 0.0009) g.flipUntil = now + 700 + Math.random() * 900;
+      if (g.flipUntil && now > g.flipUntil) g.flipUntil = 0;
+      const digit = g.flipUntil ? 1 - g.d : g.d;
 
-      const top = Math.sin(a) < -0.55, side = Math.cos(a);
-      const color = top && Math.abs(side) < 0.16 ? 'c' : side > 0 ? 'b' : 'w';
-      const s = (g.size * R) / SPR;
-      const rot = a + Math.PI / 2;
+      const s = (g.s * R) / unit;
+      const rot = g.rot + sway;
       const c = Math.cos(rot) * s, n = Math.sin(rot) * s;
       ctx.setTransform(c * DPR, n * DPR, -n * DPR, c * DPR, x * DPR, y * DPR);
-      ctx.globalAlpha = g.alpha * (0.25 + 0.75 * e);
-      ctx.drawImage(sprites[color + g.d], -SPR / 2, -SPR / 2);
+      ctx.globalAlpha = (0.2 + 0.8 * e) * (1 - sc * 0.9);
+      ctx.drawImage(sprites[g.c + digit], -SPR / 2, -SPR / 2);
     }
     ctx.globalAlpha = 1;
-    if (!introDone && time > 2.4) introDone = true;
+    if (!introDone) {
+      busy = true;
+      if (time > introEnd) { introDone = true; resolveAssembled(); }
+    }
+    return busy;
   }
 
   function loop(now) {
-    draw(now);
-    raf = visible && !reduce ? requestAnimationFrame(loop) : 0;
+    const busy = draw(now);
+    raf = (visible && !reduce) || busy ? requestAnimationFrame(loop) : 0;
   }
+  const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
 
   function onMove(e) {
     const r = canvas.getBoundingClientRect();
@@ -143,13 +167,12 @@ export function createVortex(canvas, { layout, rows = 12, gap = 1.0, intro = tru
   const io = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     if (visible && !t0) t0 = performance.now();
-    if (visible && !raf) raf = requestAnimationFrame(loop);
+    if (visible) kick();
   });
   const ro = new ResizeObserver(resize);
 
-  const ready = (document.fonts?.load('700 64px Heebo') ?? Promise.resolve()).catch(() => {}).then(() => {
+  const ready = (document.fonts?.load(FONT, '01') ?? Promise.resolve()).catch(() => {}).then(() => {
     if (!sprites) buildSprites();
-    build();
     ro.observe(canvas);
     io.observe(canvas);
     addEventListener('pointermove', onMove, { passive: true });
@@ -159,11 +182,35 @@ export function createVortex(canvas, { layout, rows = 12, gap = 1.0, intro = tru
 
   return {
     ready,
-    // open (or close) the keyhole: radians of the bottom gap
-    setGap(g) {
-      targetGap = g;
-      if (reduce) { curGap = g; draw(performance.now()); return; }
-      if (!raf && visible) raf = requestAnimationFrame(loop);
+    // resolves once every digit has landed
+    assembled,
+    // the keyhole and the mark's box, in px from the canvas's top-left
+    geometry() {
+      return {
+        cx, cy, R,
+        r: KEYHOLE.r * R, slot: KEYHOLE.slot * R, bottom: KEYHOLE.bottom * R,
+        top: cy + EXTENT.top * R, base: cy + EXTENT.bottom * R, half: EXTENT.half * R,
+      };
+    },
+    onResize(fn) { resized.add(fn); if (W) fn(); return () => resized.delete(fn); },
+    // 0..1: the lower half steps aside and the slot widens
+    setOpen(v) { openTarget = clamp01(v); if (reduce) { open = openTarget; draw(performance.now()); } else kick(); },
+    // the digits fly out along their spokes (true) or come home (false)
+    scatter(on, ms = 900) {
+      const to = on ? 1 : 0;
+      if (scat.to === to && scat.v === to) return Promise.resolve();
+      scat.done?.();
+      return new Promise((done) => {
+        Object.assign(scat, { from: scat.v, to, t: performance.now(), ms: reduce ? 0 : ms, done });
+        if (reduce) draw(performance.now());
+        kick();
+      });
+    },
+    // the light behind the mark; the hero tints it with the film's own colour
+    setGlow(rgb, alpha = 0.2) {
+      [glow.tr, glow.tg, glow.tb] = rgb || [31, 99, 255];
+      glow.ta = alpha;
+      kick();
     },
     destroy() {
       cancelAnimationFrame(raf);
