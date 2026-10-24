@@ -35,6 +35,7 @@ node tools/serve.mjs          # http://localhost:8137 — and http://<this-mac's
 | Every factual claim and its source | `docs/facts.md` — check it before changing a claim |
 | Wiring leads, shares, events and the challenge | `docs/integration.md` |
 | The six diagnosis segments (fit-check CTA + thank-you copy) | `assets/js/diagnosis.js` |
+| Working in this repo with an AI coding agent | `CLAUDE.md` — conventions, hard rules (no invented facts, no real challenge data in the repo), and gotchas worth knowing before the first edit |
 | Colours and type | the tokens at the top of `assets/css/site.css` |
 
 ## Before launch

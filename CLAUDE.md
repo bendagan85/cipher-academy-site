@@ -1,0 +1,107 @@
+# CLAUDE.md
+
+Guidance for Claude Code (or any agent) working in this repo. Start with
+`README.md` for the full picture; this file is the condensed, repo-specific
+version — conventions and gotchas that aren't obvious from reading the code.
+
+## What this is
+
+The landing funnel for Cipher Security Academy: a parents' page
+(`index.html`), a teen's page (`kid/`), and a thank-you page (`thanks/`)
+shown after the fit-check form. Static HTML/CSS/JS, no framework, no build
+step — every URL is relative so the folder works at a domain root or under a
+path. Hebrew, right-to-left, mobile-first.
+
+Three docs, read in this order before changing anything:
+1. `README.md` — architecture, how to run and test it, before-launch checklist.
+2. `docs/facts.md` — every factual claim on the pages and its source.
+3. `docs/integration.md` — the data layer: events, the lead/share/challenge
+   payloads, and the six-segment diagnosis the fit check produces.
+
+## Hard rules
+
+- **Never add a claim that isn't in `docs/facts.md`.** If a change needs a
+  new fact (a number, a vendor name, a price), find a source and add it to
+  `facts.md` first — don't invent or round up.
+- **Never put the real challenge target, hints, or FLAG pattern in this
+  repo.** `assets/js/config.js`'s `challenge` block ships empty on purpose
+  (`target: null, hints: [], flagPattern: null`) — the business's developer
+  fills it in directly from the live site's own config when they wire it up.
+  Keep it that way in any future commit; it's a deliberate boundary, not an
+  oversight. The same goes for anything that reads as exploit code or a
+  working PoC — keep vulnerability/CTF content high-level in copy and code
+  comments alike.
+- **Code, comments, commit messages and docs are in English. UI copy is in
+  Hebrew** (the buyer's language) — don't "fix" that.
+- **No AI-slop UI**: no eyebrow/kicker labels, no decorative bars, no pill
+  badges, no "01–05" numbering, no stat-tile rows. Say it at readable size in
+  a sentence, or don't say it.
+
+## Architecture notes an agent would otherwise rediscover the hard way
+
+- **The mark is the brand.** `assets/js/mark-layout.js` holds every digit of
+  the logo's 0/1 ring, measured from the brand's own 1254px file (position,
+  size, rotation, colour) — not procedurally generated. `vortex.js` renders
+  it and owns the only state that matters: assemble on first view, sway,
+  scatter outward and return (`scatter(true/false)`), and open a keyhole
+  (`setOpen(0..1)`). Three different call sites reuse the same canvas
+  component: the hero, the challenge lock (`challenge.js`), and the kid page
+  hero. Don't fork it — extend the shared module.
+- **The challenge is one component, `assets/js/challenge.js`, used on both
+  pages.** It renders live content only once `CONFIG.challenge` is filled
+  in; otherwise it falls back to a link to the challenge on the current
+  live site. Test both states.
+- **The film plays inside the mark's keyhole** (`assets/js/film.js`): a
+  muted teaser loop on load (autoplay-with-sound is blocked by every
+  browser), full-screen with sound on tap. `CONFIG.film.src` is a
+  placeholder built from a still photo until the business supplies real
+  footage — `CONFIG.film.placeholder` gates a small on-screen note that says
+  so.
+- **The fit check never shows a score.** `assets/js/diagnosis.js` turns the
+  four answers plus the prerequisite checklist into one of six segments
+  (`ready / close / prep / check / parent / young`); the quiz's own CTA and
+  the thank-you page's headline both read from the same table. Don't add a
+  branch that skips the lead form for a "weak" segment — every segment
+  collects details now, just worded differently (this was an explicit
+  client correction from the first round).
+- **`window.dataLayer` is reset by navigation.** The lead form redirects to
+  `thanks/` on success; any test or script that reads events after that
+  redirect is reading a different `window` and will see nothing before the
+  redirect. Read events before triggering navigation, not after
+  (`tools/flow-test.mjs` does this correctly — copy its pattern).
+- **Headless WebKit flattens `transform-style: preserve-3d`.** The
+  defend/attack/research exploded-layers chapter only renders in Chromium
+  or on a real device; `tools/page-shots.mjs` defaults to Chromium for this
+  reason.
+- **RTL + `margin-inline-start: auto` is a trap.** It pushes an element
+  toward the *visual left* (inline-end in RTL), not the right — this broke
+  the desktop hero layout once already (the headline landed on top of the
+  mark instead of beside it). Think in logical directions, verify with a
+  screenshot, not just a read of the CSS.
+- **`node tools/serve.mjs`, never `python -m http.server`** for local
+  preview — Python's server resets connections on this project's ES module
+  imports.
+
+## Before touching copy or facts
+
+Re-read `docs/facts.md`'s "Do not state" section. It exists because specific
+claims were explicitly rejected in review (unverifiable superlatives,
+success percentages, any 8200 unit affiliation, career-outcome promises).
+These aren't style preferences — treat them as hard constraints.
+
+## Checking your work
+
+```bash
+npm install        # playwright, once
+npm test            # tools/flow-test.mjs — every interaction, all 3 pages, data layer, reduced motion, no-JS
+npm run shots        # tools/page-shots.mjs — phone screenshots + page length in screens, for the parents' page
+```
+
+For the other two pages: `node tools/page-shots.mjs http://localhost:8137/kid/ tools/out/kid chromium` /
+`.../thanks/ tools/out/thanks chromium` (swap the URL and output dir).
+
+A change isn't done until `npm test` passes and you've actually looked at
+the resulting screenshots — several real bugs in this project (the RTL
+margin trap above, a 3D stack that rendered flat, an invisible absolutely-
+positioned element) were invisible in a code read and only caught by
+screenshotting.
