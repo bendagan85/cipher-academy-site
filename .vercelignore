@@ -1,0 +1,14 @@
+# Only the site goes live: the three pages and assets/.
+# Tooling, docs and agent notes stay in the repo.
+.github
+tools
+docs
+directions
+node_modules
+package.json
+package-lock.json
+README.md
+CLAUDE.md
+.gitignore
+.vercelignore
+.DS_Store
