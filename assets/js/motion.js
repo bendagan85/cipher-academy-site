@@ -82,3 +82,34 @@ export function reveals(scope = document) {
     onView(el, () => gsap.to(el, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', overwrite: true }));
   });
 }
+
+// a number ([data-count]) counted up from zero once it is fully in view; the
+// real figure stays in the text for screen readers, the counting one is only seen
+export function countUp(el, duration = 1.5) {
+  if (!el || reduce) return;
+  const to = +el.dataset.count;
+  el.insertAdjacentHTML('beforebegin', `<span class="sr">${to}</span>`);
+  el.setAttribute('aria-hidden', 'true');
+  el.textContent = '0';
+  onView(el, () => {
+    const c = { n: 0 };
+    window.gsap.to(c, { n: to, duration, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(c.n); } });
+  }, 0.9, '0px');
+}
+
+// Content that grows or shrinks after load (a tab's longer answer, an opened
+// question, the challenge panel) moves everything under it, and the scroll
+// scenes below would fire early or late by that much: once the page's height
+// settles, ScrollTrigger measures them again.
+export function remeasure() {
+  const { ScrollTrigger } = window;
+  if (!ScrollTrigger) return;
+  let h = document.body.offsetHeight, t = 0;
+  new ResizeObserver(() => {
+    const now = document.body.offsetHeight;
+    if (Math.abs(now - h) < 2) return;
+    h = now;
+    clearTimeout(t);
+    t = setTimeout(() => ScrollTrigger.refresh(), 180);
+  }).observe(document.body);
+}

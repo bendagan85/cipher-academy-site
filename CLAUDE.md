@@ -43,10 +43,13 @@ Three docs, read in this order before changing anything:
   the logo's 0/1 ring, measured from the brand's own 1254px file (position,
   size, rotation, colour) — not procedurally generated. `vortex.js` renders
   it and owns the only state that matters: assemble on first view, sway,
-  scatter outward and return (`scatter(true/false)`), and open a keyhole
-  (`setOpen(0..1)`). Three different call sites reuse the same canvas
-  component: the hero, the challenge lock (`challenge.js`), and the kid page
-  hero. Don't fork it — extend the shared module.
+  scatter outward and return (`scatter(true/false)`), open a keyhole like an
+  aperture (`setOpen(0..1)`), and — for the syllabus, where each ring is a
+  tier — a camera and per-ring light (`setCamera`, `setLight`, `flash`). Six
+  call sites reuse the same canvas component: the parents' hero, the
+  syllabus, the challenge lock (`challenge.js`), the closing coda, the kid
+  page hero and the thank-you page. Don't fork it — extend the shared
+  module.
 - **The challenge is one component, `assets/js/challenge.js`, used on both
   pages.** It renders live content only once `CONFIG.challenge` is filled
   in; otherwise it falls back to a link to the challenge on the current
@@ -56,7 +59,9 @@ Three docs, read in this order before changing anything:
   browser), full-screen with sound on tap. `CONFIG.film.src` is a
   placeholder built from a still photo until the business supplies real
   footage — `CONFIG.film.placeholder` gates a small on-screen note that says
-  so.
+  so. The keyhole only opens once the rings have assembled; a tap that lands
+  during that intro must still open the player, and `film.js` guards for it
+  (a regression here left the page veiled and scroll-locked).
 - **The fit check never shows a score.** `assets/js/diagnosis.js` turns the
   four answers plus the prerequisite checklist into one of six segments
   (`ready / close / prep / check / parent / young`); the quiz's own CTA and
@@ -81,6 +86,23 @@ Three docs, read in this order before changing anything:
 - **`node tools/serve.mjs`, never `python -m http.server`** for local
   preview — Python's server resets connections on this project's ES module
   imports.
+- **Scroll triggers go stale when content above them changes height** (the
+  HP chapter's result tab, an opened FAQ answer, late fonts). Each page calls
+  `remeasure()` from `motion.js`, which refreshes ScrollTrigger whenever the
+  body's height changes; a new page needs the same call.
+- **The global `img, svg, canvas { max-inline-size: 100% }` caps canvases
+  that are meant to overhang** their box (the lock's field, the thank-you
+  field). Give those `max-inline-size: none`, or the mark draws off-centre.
+- **The hero is its own stacking context** (`isolation: isolate`), so the
+  film's veil and close button can't rise above the header by z-index alone;
+  `html.is-locked .hero { z-index: 40 }` lifts the whole hero while the film
+  is open.
+- **The syllabus is a tall track with a sticky stage**, and Playwright's own
+  scroll-into-view overshoots inside it into the next tier. Scroll to the
+  tier's hold and click through the DOM, as `tools/flow-test.mjs` does.
+- **Check 320px.** No-wrap spans (`.nb`) and four-across rows that fit at
+  360px overflow on the narrowest phones; the `max-width: 359px` rules exist
+  for that reason.
 
 ## Before touching copy or facts
 
@@ -105,3 +127,11 @@ the resulting screenshots — several real bugs in this project (the RTL
 margin trap above, a 3D stack that rendered flat, an invisible absolutely-
 positioned element) were invisible in a code read and only caught by
 screenshotting.
+
+## Shipping
+
+A push to `main` is a production deploy: `.github/workflows/deploy.yml` runs
+the Vercel CLI against the business's Vercel project with the repository
+secret `VERCEL_TOKEN`. Gate every push on `npm test`, never write the token
+into a file, and keep `.vercelignore` in step when you add tooling or notes —
+anything not listed there is served on the live site.

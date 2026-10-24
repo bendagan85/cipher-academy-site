@@ -10,12 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<!-- the mark's digits only: Saira cut down to "0" and "1" -->
+<link href="https://fonts.googleapis.com/css2?family=Saira:wght@700&text=01&display=block" rel="stylesheet">
 <link rel="stylesheet" href="../assets/css/site.css">
 <script>document.documentElement.classList.add('js')</script>
 <script src="../assets/vendor/gsap.min.js" defer></script>
 <script type="module" src="../assets/js/thanks.js"></script>
 </head>
 <body class="thanks">
+<div class="atmo" aria-hidden="true"><i></i><i></i><i></i></div>
 
 <header class="top is-solid">
   <div class="wrap top__in">
@@ -29,26 +32,30 @@
 <main id="top">
 
   <!-- ─── the diagnosis ───────────────────────────────────────────────────── -->
-  <section class="chapter ack" data-chapter="ack">
-    <div class="wrap">
-      <p class="ack__hi rise" data-ack-hi>תודה.</p>
-      <h1 class="title split-words" data-ack-head>קיבלנו. נחזור אליכם בימים הקרובים.</h1>
-      <p class="lead rise" data-ack-body></p>
-      <p class="ack__brand rise">זה הצעד הראשון שלכם באקדמיה שההכנה בה עמוקה יותר מכל הכנה אחרת ליחידות הטכנולוגיות בארץ.</p>
-      <div class="pair rise" data-send-row>
-        <button class="btn btn--solid" type="button" data-share-now="kid" data-source="thanks-top">שלחו לילד את האתגר</button>
-        <button class="btn btn--line" type="button" data-share-now="partner" data-source="thanks-top">שלחו לבן/בת הזוג</button>
+  <section class="chapter ack" data-chapter="ack" data-mood="turn">
+    <canvas class="ack__field" aria-hidden="true"></canvas>
+    <div class="wrap ack__in">
+      <div class="ack__mark" aria-hidden="true"></div>
+      <div class="ack__copy">
+        <p class="ack__hi rise" data-ack-hi>תודה.</p>
+        <h1 class="title decode" data-ack-head>קיבלנו. נחזור אליכם בימים הקרובים.</h1>
+        <p class="lead rise" data-ack-body></p>
+        <p class="ack__brand rise">זה הצעד הראשון שלכם באקדמיה שההכנה בה עמוקה יותר מכל הכנה אחרת ליחידות הטכנולוגיות בארץ.</p>
+        <div class="pair rise" data-send-row>
+          <button class="btn btn--solid" type="button" data-share-now="kid" data-source="thanks-top">שלחו לילד את האתגר</button>
+          <button class="btn btn--line" type="button" data-share-now="partner" data-source="thanks-top">שלחו לבן/בת הזוג</button>
+        </div>
+        <p class="ack__note rise" data-send-note hidden>כבר שלחתם להם. אפשר גם לבן או לבת הזוג.</p>
       </div>
-      <p class="ack__note rise" data-send-note hidden>כבר שלחתם להם. אפשר גם לבן או לבת הזוג.</p>
     </div>
   </section>
 
   <!-- ─── who stands behind it ───────────────────────────────────────────── -->
-  <section class="chapter" data-chapter="labs">
+  <section class="chapter" data-chapter="labs" data-mood="nir">
     <div class="wrap split">
       <div>
         <h2 class="title split-words">מי שמלמד את הילד שלכם, מוצא חולשות בעולם האמיתי.</h2>
-        <p class="lead rise">ניר יהושע ושותפו אוריאל קוסייב מנהלים את <span class="nb">Cipher Security Labs</span>: חברת מחקר סייבר פעילה. ב־2026 לבד פרסמה Cipher יותר מ־<strong>30 חולשות</strong> מתועדות, ועיתונות הסייבר בעולם כתבה עליהן 16 כתבות שונות — ב־HP, ב־Dell, באריקסון ועוד.</p>
+        <p class="lead rise">ניר יהושע ושותפו אוריאל קוסייב מנהלים את <span class="nb">Cipher Security Labs</span>: חברת מחקר סייבר פעילה. ב־2026 לבד פרסמה Cipher יותר מ־<strong><span data-count="30">30</span> חולשות</strong> מתועדות, ועיתונות הסייבר בעולם כתבה עליהן 16 כתבות שונות — ב־HP, ב־Dell, באריקסון ועוד.</p>
         <p class="say rise">השם של ניר רשום בדיווחי החולשות הרשמיים של <span class="nb">HP</span>, <span class="nb">Dell</span>, <span class="nb">Ericsson</span> ו־<span class="nb">Fujitsu</span>. הוא גם כתב, יחד עם אוריאל, את <a class="link link--inline" href="https://www.amazon.com/dp/1801079749" target="_blank" rel="noopener" data-track="proof_link" data-target="book">הספר על עקיפת אנטי־וירוס ↗</a>, בהוצאת Packt.</p>
       </div>
       <div>
@@ -64,7 +71,7 @@
   </section>
 
   <!-- ─── what happens next, and the prerequisites recap ─────────────────── -->
-  <section class="chapter" data-chapter="next-steps">
+  <section class="chapter" data-chapter="next-steps" data-mood="filter">
     <div class="wrap">
       <h2 class="title split-words">מכאן, ארבעה שלבים.</h2>
       <p class="path rise" aria-label="שלבי הקבלה: בדיקת התאמה, שיחה, ראיון, מבחן"><span class="is-done">בדיקת התאמה</span><i aria-hidden="true">←</i><span data-step="talk">שיחה</span><i aria-hidden="true">←</i><span>ראיון</span><i aria-hidden="true">←</i><span>מבחן</span></p>
@@ -78,7 +85,7 @@
   </section>
 
   <!-- ─── final ────────────────────────────────────────────────────────── -->
-  <section class="chapter end-cta" data-chapter="end">
+  <section class="chapter end-cta" data-chapter="end" data-mood="fit">
     <div class="wrap">
       <h2 class="title split-words">שאלה לפני שממשיכים?</h2>
       <p class="lead rise">דברו איתנו ישירות בוואטסאפ: <a class="link link--inline ltr" href="https://wa.me/972549908200" target="_blank" rel="noopener" data-track="whatsapp_direct" data-source="end">054-990-8200</a></p>

@@ -19,6 +19,9 @@ async function phone(opts = {}) {
   return { ctx, page, errors };
 }
 const events = (page) => page.evaluate(() => (window.dataLayer || []).map((e) => e.event));
+// wait for a condition in the page; a timeout is a failed check, not a crash
+const until = (page, fn, ms, arg) => page.waitForFunction(fn, arg, { timeout: ms }).then(() => true, () => false);
+const gone = (locator, ms) => locator.waitFor({ state: 'hidden', timeout: ms }).then(() => true, () => false);
 
 /* ── parents' page ─────────────────────────────────────────────────────── */
 {
@@ -26,15 +29,42 @@ const events = (page) => page.evaluate(() => (window.dataLayer || []).map((e) =>
   await page.goto(`${BASE}/?utm_source=test&utm_campaign=flow`);
   await page.waitForTimeout(1500);
 
+  // the film: the keyhole becomes the screen, then gives the page back
+  await page.locator('.hero [data-film-open="caption"]').click();
+  check(await until(page, () => document.querySelector('.film__frame.is-open') !== null, 4000), 'film: a tap opens the keyhole into the full film');
+  check(await page.evaluate(() => document.documentElement.classList.contains('is-locked')), 'film: the page under it is locked while it plays');
+  await page.locator('.film__x').click();
+  check(await until(page, () => !document.documentElement.classList.contains('is-locked') && document.querySelector('.film').dataset.state !== 'open', 4000), 'film: closing puts the film back in the mark and unlocks the page');
+
   await page.locator('.lens button[data-mode="research"]').click();
   check(await page.locator('.sys').getAttribute('data-mode') === 'research', 'lens: research mode set');
 
   await page.locator('.hp__tabs button[data-step="2"]').click();
   check(await page.locator('.hp__say .cves a').count() === 3, 'hp: result step shows the three CVE links');
 
-  await page.locator('[data-chapter-n="3"]').click();
-  check(await page.locator('#syllabus').evaluate((d) => d.open), 'syllabus: a syllabus card opens the sheet');
+  // the press: a clipping at the back comes forward when tapped (its headline strip shows)
+  const back = page.locator('.press .story:not(.is-front)').first();
+  const target = await back.getAttribute('data-target');
+  await back.click({ position: { x: 40, y: 18 } });
+  check(await until(page, (t) => document.querySelector(`.story[data-target="${t}"]`)?.classList.contains('is-front'), 3000, target), 'press: a tapped clipping comes to the front');
+
+  // the syllabus: a chapter opens its topics; a tier tab moves the scene a ring in.
+  // The scene is sticky, so Playwright's own scroll-into-view would push it on
+  // to the next tier: scroll to a tier's hold the way a reader would, then tap.
+  const tap = (sel) => page.evaluate((s) => document.querySelector(s).click(), sel);
+  await page.evaluate(() => { const el = document.querySelector('.course__track'); scrollTo(0, el.getBoundingClientRect().top + scrollY + (0.5 / 3) * (el.offsetHeight - innerHeight)); });
+  await page.waitForTimeout(700);
+  check(!(await page.locator('#course-tier-1').isHidden()), 'syllabus: the first tier holds at the start of the scene');
+  await tap('[data-chapter-n="3"]');
+  check(await page.locator('#syllabus').evaluate((d) => d.open), 'syllabus: a chapter opens the sheet');
   check(await page.locator('#syllabus details[data-n="3"]').evaluate((d) => d.open), 'syllabus: the right chapter is expanded');
+  await page.locator('#syllabus [data-close]').click();
+  await tap('#course-tab-2');
+  check(await until(page, () => !document.querySelector('#course-tier-2').hidden && document.querySelector('#course-tier-1').hidden, 4000), 'syllabus: a tier tab brings that tier\'s chapters up');
+  await page.waitForTimeout(1200);
+  check(!(await page.locator('#course-tier-2').isHidden()), 'syllabus: and the scene settles on it');
+  await tap('[data-chapter-n="8"]');
+  check(await page.locator('#syllabus details[data-n="8"]').evaluate((d) => d.open), 'syllabus: a chapter from the second tier opens too');
   await page.locator('#syllabus [data-close]').click();
 
   const check_ = page.locator('.check__grid');
@@ -58,11 +88,18 @@ const events = (page) => page.evaluate(() => (window.dataLayer || []).map((e) =>
 
   await page.locator('.faq details').first().locator('summary').click();
   await page.waitForTimeout(150);
+  check(await until(page, () => { const a = document.querySelector('.faq details .faq__a'); return a && a.offsetHeight > 20; }, 2000), 'faq: an answer slides open');
+
+  // the bookend: the mark comes together again and opens on the way to the fit check
+  await page.locator('.coda').scrollIntoViewIfNeeded();
+  check(await until(page, () => document.querySelector('.coda').classList.contains('is-open'), 8000), 'coda: the mark assembles and opens on its button');
+  await page.locator('.coda__go').click();
+  check(await until(page, () => { const r = document.querySelector('#fit').getBoundingClientRect(); return r.top < innerHeight * 0.5 && r.bottom > 0; }, 4000), 'coda: its button brings the fit check up');
 
   // dataLayer lives on window, which the lead-success redirect below replaces —
   // so every event up to here has to be read before that navigation happens.
   const ev1 = await events(page);
-  for (const name of ['page_view', 'lens_select', 'hp_step', 'prereq_toggle', 'syllabus_open', 'share_created', 'share_sent', 'link_copied', 'faq_open']) {
+  for (const name of ['page_view', 'film_open', 'film_close', 'lens_select', 'hp_step', 'press_card', 'syllabus_open', 'syllabus_tier', 'prereq_toggle', 'share_created', 'share_sent', 'link_copied', 'faq_open', 'cta_fit']) {
     check(ev1.includes(`cipher_${name}`), `data: ${name} recorded`);
   }
 
@@ -114,8 +151,8 @@ const events = (page) => page.evaluate(() => (window.dataLayer || []).map((e) =>
   await page.waitForTimeout(1200);
   check(await page.locator('[data-challenge]').isHidden(), 'challenge: stays hidden until the mark is tapped');
   await page.evaluate(() => document.querySelector('[data-lock-open]').click());
-  await page.waitForTimeout(900);
-  check(await page.locator('[data-lock]').isHidden(), 'challenge: the mark gives way once opened');
+  // the rings spin home and click in, the keyhole opens, then the panel
+  check(await gone(page.locator('[data-lock]'), 6000), 'challenge: the mark unlocks and gives way');
   check(await page.locator('[data-challenge] a.ch__go').count() === 1, 'challenge: links to the live challenge while target/hints are unwired');
   check(errors.length === 0, `challenge: no page errors ${errors.join(' | ')}`);
   await ctx.close();
@@ -126,10 +163,14 @@ const events = (page) => page.evaluate(() => (window.dataLayer || []).map((e) =>
   const { ctx, page, errors } = await phone();
   await page.goto(`${BASE}/kid/?ref=abc123xyz0`);
   await page.waitForTimeout(1500);
+  await page.locator('#method .lens button[data-mode="research"]').click();
+  check(await page.locator('#method .sys').getAttribute('data-mode') === 'research', 'kid: the lenses take the system apart here too');
+  check(await page.locator('#program .loop__dial path').count() === 30, 'kid: the dial has an arc per session');
   await page.locator('#check .check__grid button').first().click();
   check((await page.locator('#check .check__say').textContent()).length > 0, 'kid: the self-check answers with a verdict');
+  check(await page.locator('#check .check__ring path.on').count() === 1, 'kid: the ring lights an arc per box ticked');
   await page.evaluate(() => document.querySelector('[data-lock-open]').click());
-  await page.waitForTimeout(900);
+  await gone(page.locator('[data-lock]'), 6000);
   check(await page.locator('[data-challenge] a[href*="cipher-challenge"]').count() === 1, 'kid: links to the live challenge while the backend is unwired');
   await page.locator('[data-tell-parent]').first().click();
   const opened = await page.evaluate(() => window.__opened);
@@ -145,7 +186,8 @@ const events = (page) => page.evaluate(() => (window.dataLayer || []).map((e) =>
   const { ctx, page, errors } = await phone();
   await page.goto(`${BASE}/thanks/`);
   await page.waitForTimeout(1000);
-  check((await page.locator('[data-ack-head]').textContent()).length > 0, 'thanks (cold): still shows a diagnosis, not a blank state');
+  check((await page.locator('[data-ack-head]').getAttribute('aria-label') || '').length > 0, 'thanks (cold): still shows a diagnosis, not a blank state');
+  check(await until(page, () => [...document.querySelectorAll('[data-ack-head] .w')].every((w) => w.classList.contains('is-done')), 4000), 'thanks: the headline decodes into words');
   check(await page.locator('[data-send-note]').isVisible(), 'thanks (cold): the send-to-kid reminder shows');
   await page.locator('[data-share-now="kid"]').first().click();
   const opened = await page.evaluate(() => window.__opened);
@@ -160,10 +202,15 @@ for (const [path, label] of [['/', 'parents'], ['/kid/', 'kid'], ['/thanks/', 't
     const { ctx, page } = await phone(opts);
     await page.goto(`${BASE}${path}`);
     await page.waitForTimeout(1200);
-    const hidden = await page.evaluate(() => [...document.querySelectorAll('h1, h2, .lead, .say, .seats')]
+    const hidden = await page.evaluate(() => [...document.querySelectorAll('h1, h2, .lead, .say, .seats, .coda__line, .coda__go, .tier button')]
       .filter((el) => { const s = getComputedStyle(el); return +s.opacity < 0.5 || s.visibility === 'hidden'; })
       .map((el) => el.textContent.trim().slice(0, 30)));
     check(hidden.length === 0, `${label}, ${motionLabel}: all copy visible ${hidden.join(' | ')}`);
+    if (label === 'parents') {
+      // still: the syllabus is one screen to read, not a scene to scroll through
+      const still = await page.evaluate(() => ({ still: document.documentElement.classList.contains('is-still'), h: document.querySelector('.course__track').offsetHeight / innerHeight }));
+      check(still.h < 1.6, `parents, ${motionLabel}: the syllabus does not hold the page (${still.h.toFixed(2)} screens)`);
+    }
     await ctx.close();
   }
 }

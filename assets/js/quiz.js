@@ -5,6 +5,8 @@
 import { CONFIG } from './config.js';
 import { track, journey, summary } from './track.js';
 import { diagnose, readPrereq, CTA, THANKS_KEY } from './diagnosis.js';
+import { decode } from './motion.js';
+import { arcRing } from './rings.js';
 
 const QUESTIONS = [
   { key: 'grade', q: 'באיזו כיתה הם?', opts: [['9', 'ט׳'], ['10', 'י׳'], ['11', 'י״א'], ['12', 'י״ב'], ['other', 'אחר']] },
@@ -15,32 +17,52 @@ const QUESTIONS = [
 const WAITING = 'בסוף 4 השאלות: הצעד הבא שלכם';
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// every word its own span, so the question can decode in (motion.js)
+const words = (s) => s.split(' ').map((w) => `<span class="w">${esc(w)}</span>`).join(' ');
+const LOCK = '<svg class="fit__lock" viewBox="0 0 24 24" aria-hidden="true"><path class="fit__shackle" d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="5" y="11" width="14" height="10" fill="currentColor"/></svg>';
 
 export function mountQuiz(root) {
   const answers = {};
   let step = 0, started = false, leadSent = false;
   root.innerHTML = `
     <div class="fit__stage"></div>
-    <button class="btn btn--solid fit__go" type="submit" form="fit-form" disabled aria-disabled="true">${WAITING}</button>`;
+    <button class="btn btn--solid fit__go" type="submit" form="fit-form" disabled aria-disabled="true">${LOCK}<span class="fit__go-t">${WAITING}</span></button>`;
   const stage = root.querySelector('.fit__stage');
   const go = root.querySelector('.fit__go');
+  const goText = go.querySelector('.fit__go-t');
+  const { svg: ring, set: progress } = arcRing(QUESTIONS.length, 'fit__ring', 10);
 
   function wake(on) {
+    const was = !go.disabled;
     go.disabled = !on;
     go.setAttribute('aria-disabled', String(!on));
-    go.textContent = on ? CTA[diagnose(answers, readPrereq())] : WAITING;
+    goText.textContent = on ? CTA[diagnose(answers, readPrereq())] : WAITING;
+    go.classList.toggle('is-open', on);
+    // the lock springs open once, as the last answer lands
+    if (on && !was && !reduce) {
+      go.classList.remove('is-waking');
+      void go.offsetWidth;
+      go.classList.add('is-waking');
+    }
   }
 
   function renderQuestion() {
     const { key, q, opts } = QUESTIONS[step];
+    // short answers (a grade, a word) sit side by side; sentences stack
+    const row = opts.every(([, label]) => label.length <= 8);
     wake(false);
     stage.innerHTML = `
-      <p class="fit__count">שאלה ${step + 1} מתוך ${QUESTIONS.length}</p>
-      <h3 class="fit__q" tabindex="-1">${esc(q)}</h3>
-      <div class="fit__opts" role="group" aria-label="${esc(q)}">
+      <div class="fit__top"><p class="fit__count">שאלה ${step + 1} מתוך ${QUESTIONS.length}</p></div>
+      <h3 class="fit__q decode" tabindex="-1" aria-label="${esc(q)}">${words(q)}</h3>
+      <div class="fit__opts${row ? ' fit__opts--row' : ''}" role="group" aria-label="${esc(q)}"${row ? ` style="--n:${opts.length}"` : ''}>
         ${opts.map(([v, label]) => `<button type="button" data-v="${v}" aria-pressed="${answers[key] === v}">${esc(label)}</button>`).join('')}
       </div>
       <div class="fit__nav">${step ? '<button class="fit__back" type="button" data-back>חזרה</button>' : '<span></span>'}</div>`;
+    stage.querySelector('.fit__top').append(ring);
+    progress(step);
+    decode(stage.querySelector('.fit__q'), 60);
+    if (!reduce) window.gsap?.fromTo(stage.querySelectorAll('.fit__opts button'), { opacity: 0, x: 18 }, { opacity: 1, x: 0, duration: 0.45, stagger: 0.06, delay: 0.12, ease: 'power3.out' });
   }
 
   function renderForm() {
@@ -48,6 +70,7 @@ export function mountQuiz(root) {
     root.dataset.route = segment;
     track('quiz_result', { route: segment, ...answers });
     stage.innerHTML = `
+      <div class="fit__top"></div>
       <h3 class="fit__q" tabindex="-1">נשאר רק לומר לנו איך לחזור אליכם.</h3>
       <form class="form" id="fit-form" novalidate>
         <label>שם ההורה<input type="text" name="name" autocomplete="name" required maxlength="80"></label>
@@ -58,6 +81,8 @@ export function mountQuiz(root) {
         <p class="form__err" aria-live="assertive"></p>
       </form>
       <div class="fit__nav"><button class="fit__back" type="button" data-restart>לענות מחדש</button><span></span></div>`;
+    stage.querySelector('.fit__top').append(ring);
+    progress(QUESTIONS.length);
     wake(true);
     track('lead_form_view', { route: segment });
   }
@@ -108,7 +133,7 @@ export function mountQuiz(root) {
       ts: new Date().toISOString(),
     };
     go.disabled = true;
-    go.textContent = 'שולחים…';
+    goText.textContent = 'שולחים…';
     let ok = true;
     if (CONFIG.api.leads) {
       try {
@@ -143,6 +168,7 @@ export function mountQuiz(root) {
       if (!started) { started = true; track('quiz_start'); }
       track('quiz_answer', { q: key, a: opt.dataset.v, step: step + 1 });
       opt.setAttribute('aria-pressed', 'true');
+      progress(step + 1);
       setTimeout(() => {
         step++;
         if (step < QUESTIONS.length) renderQuestion(); else renderForm();
@@ -155,7 +181,7 @@ export function mountQuiz(root) {
   });
   root.addEventListener('submit', (e) => { e.preventDefault(); submit(e.target); });
   // the prerequisite ticks can change after the form shows: keep the button's words current
-  addEventListener('cipher:prereq', () => { if (!go.disabled && !leadSent) go.textContent = CTA[diagnose(answers, readPrereq())]; });
+  addEventListener('cipher:prereq', () => { if (!go.disabled && !leadSent) goText.textContent = CTA[diagnose(answers, readPrereq())]; });
 
   renderQuestion();
 }

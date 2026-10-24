@@ -1,5 +1,8 @@
-// The challenge sits behind the mark: tapping the keyhole scatters the digits
-// and the challenge opens in their place. Its content (address, hints, the
+// The challenge sits behind the mark, and the mark is a combination lock: its
+// rings start out of line, a finger (or a mouse) drags them round, each at its
+// own gear, ticking past every spoke. Turn them far enough, or just tap the
+// keyhole, and they spin home and click in one by one; the keyhole opens, the
+// digits scatter, and the challenge opens in their place. Its content (address, hints, the
 // FLAG check) comes from CONFIG.challenge; until the developer fills it, the
 // panel sends the visitor to the live challenge. Both pages use this module
 // and decide for themselves what a solve leads to.
@@ -9,6 +12,7 @@ import { copy } from './share.js';
 import { createVortex } from './vortex.js';
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const M = 40;
 export const onPhone = () => matchMedia('(pointer: coarse)').matches && innerWidth < 900;
 
 const RULES = `
@@ -64,29 +68,29 @@ export function mountChallenge(lock, root, { source, onSolved }) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const mark = createVortex(canvas, {
-    intro: false,
+    intro: reduce ? 'none' : 'scrambled',
+    dust: reduce ? 0 : 90,
+    // the canvas overhangs the box by M on every side (site.css)
     layout: (w, h) => {
-      const R = Math.min(w * 0.36, h * 0.43);
+      const R = Math.min((w - 2 * M) * 0.36, (h - 2 * M) * 0.43);
       return { cx: w / 2, cy: h * 0.5 - R * 0.05, R };
     },
   });
   mark.onResize(() => {
     const g = mark.geometry();
-    for (const [k, v] of Object.entries({ cx: g.cx, cy: g.cy, r: g.r })) lock.style.setProperty(`--${k}`, `${v.toFixed(1)}px`);
+    for (const [k, v] of Object.entries({ cx: g.cx - M, cy: g.cy - M, r: g.r })) lock.style.setProperty(`--${k}`, `${v.toFixed(1)}px`);
   });
-  // the keyhole widens as it comes into view: an invitation, before any text
-  if (ScrollTrigger && !reduce) {
-    mark.ready.then(() => ScrollTrigger.create({
-      trigger: lock, start: 'top 85%', end: 'center 45%',
-      onUpdate: (st) => mark.setOpen(st.progress * 0.55),
-    }));
-  }
-
-  let opened = 0, attempts = 0;
-  async function start() {
-    if (lock.dataset.state === 'open') return;
+  let opened = 0, attempts = 0, busy = false;
+  async function start(via = 'tap') {
+    if (lock.dataset.state === 'open' || busy) return;
+    busy = true;
+    // the combination: the rings spin home and click in, outside in
+    if (mark.locked) { lock.dataset.state = 'unlocking'; await mark.unlock(); }
+    // then the keyhole opens
+    mark.setOpen(1);
+    await new Promise((r) => setTimeout(r, reduce ? 0 : 520));
     lock.dataset.state = 'open';
-    track('challenge_start', { source, ready });
+    track('challenge_start', { source, ready, via });
     root.innerHTML = ready ? live(cfg) : fallback(cfg.fallbackUrl);
     if (onPhone()) {
       root.insertAdjacentHTML('afterbegin', '<p class="ch__phone">אתם בטלפון: את האתגר פותרים במחשב. אפשר להסתכל עכשיו, ולשלוח את הקישור למחשב.</p>');
@@ -103,7 +107,43 @@ export function mountChallenge(lock, root, { source, onSolved }) {
     root.querySelector('.ch__mission')?.focus({ preventScroll: true });
     ScrollTrigger?.refresh();
   }
-  key.addEventListener('click', start);
+  key.addEventListener('click', (e) => {
+    // the end of a drag that started on the keyhole is not a tap
+    if (dragged) { e.preventDefault(); dragged = false; return; }
+    start('tap');
+  });
+
+  // turning the rings: sideways drags only, so the page still scrolls under a finger
+  let down = null, dragged = false, turned = 0;
+  lock.addEventListener('pointerdown', (e) => {
+    if (!mark.locked || busy) return;
+    down = { x: e.clientX, y: e.clientY, id: e.pointerId, live: false };
+  });
+  lock.addEventListener('pointermove', (e) => {
+    if (!down || e.pointerId !== down.id) return;
+    const dx = e.clientX - down.x, dy = e.clientY - down.y;
+    if (!down.live) {
+      if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return;
+      down.live = true;
+      dragged = true;
+      lock.setPointerCapture?.(e.pointerId);
+      lock.dataset.state = 'turning';
+    }
+    const g = mark.geometry();
+    // a drag across the mark turns it about half a turn
+    const rad = (e.clientX - down.x) / Math.max(80, g.R) * 1.4;
+    down.x = e.clientX;
+    mark.nudge(rad);
+    turned += Math.abs(rad);
+    if (turned > 3.2) { down = null; start('turn'); }
+  });
+  const up = () => {
+    if (down?.live) setTimeout(() => { dragged = false; }, 0);
+    down = null;
+    if (lock.dataset.state === 'turning') lock.dataset.state = '';
+  };
+  lock.addEventListener('pointerup', up);
+  lock.addEventListener('pointercancel', up);
 
   root.addEventListener('click', async (e) => {
     const hint = e.target.closest('[data-hint]');

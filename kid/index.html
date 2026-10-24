@@ -26,6 +26,7 @@
 <script type="module" src="../assets/js/kid.js"></script>
 </head>
 <body class="kid">
+<div class="atmo" aria-hidden="true"><i></i><i></i><i></i></div>
 
 <header class="top is-solid">
   <div class="wrap top__in">
@@ -41,12 +42,14 @@
   <!-- 1 — the hero: the mark, and the opportunity ───────────────────────── -->
   <section class="hero kid-hero" data-chapter="kid-hero">
     <canvas class="hero__field" aria-hidden="true"></canvas>
-    <span class="hero__r" aria-hidden="true"></span>
-    <div class="wrap">
+    <div class="wrap hero__in">
+      <div class="hero__stage">
+        <div class="hero__mark" aria-hidden="true"></div>
+      </div>
       <div class="copy">
         <h1 class="display decode">
           <span class="w">קיבלתם</span> <span class="w">קישור.</span>
-          <span class="w">ועכשיו</span> <span class="w">—</span> <span class="w">הזדמנות.</span>
+          <span class="w">ועכשיו</span>&nbsp;<span class="w">—</span> <span class="w">הזדמנות.</span>
         </h1>
         <p class="lead rise">להראות לחוקרי הסייבר של <span class="nb">Cipher Security Labs</span> איך אתם חושבים. בלי ציונים ובלי קורות חיים.</p>
         <div class="pair rise">
@@ -58,27 +61,38 @@
   </section>
 
   <!-- 2 — who / why ───────────────────────────────────────────────────── -->
-  <section class="chapter" data-chapter="kid-who" id="who">
+  <section class="chapter" data-chapter="kid-who" data-mood="hp" id="who">
     <div class="wrap">
       <p class="bridge rise">זו לא עוד הכנה:</p>
       <h2 class="title split-words">חברת סייבר פעילה שלחה לכם את הקישור הזה.</h2>
-      <p class="lead rise"><span class="nb">Cipher Security Labs</span> היא חברת מחקר סייבר: החוקרים שלה מוצאים חולשות אמיתיות בתוכנות שמיליוני אנשים מתקינים. ב־2026 לבד הם פרסמו יותר מ־<strong class="hot">30 חולשות</strong> מתועדות — ב־<span class="nb">HP</span>, ב־<span class="nb">Dell</span> וב־<span class="nb">Ericsson</span>.</p>
+      <p class="lead rise"><span class="nb">Cipher Security Labs</span> היא חברת מחקר סייבר: החוקרים שלה מוצאים חולשות אמיתיות בתוכנות שמיליוני אנשים מתקינים. ב־2026 לבד הם פרסמו יותר מ־<strong class="hot"><span data-count="30">30</span> חולשות</strong> מתועדות — ב־<span class="nb">HP</span>, ב־<span class="nb">Dell</span> וב־<span class="nb">Ericsson</span>.</p>
       <p class="say rise">הם לא קוראים על סייבר. הם עושים אותו. ועכשיו הם בנו אתגר, כדי לראות איך אתם חושבים.</p>
       <a class="link" href="#challenge" data-track="cta_challenge" data-source="who">ישר לאתגר ↓</a>
     </div>
   </section>
 
   <!-- 3 — what's different ────────────────────────────────────────────── -->
-  <section class="chapter" data-chapter="kid-method">
-    <div class="wrap">
-      <h2 class="title split-words">בכל הכנה לומדים להגן ולתקוף. <em>אצלנו לומדים גם לחקור.</em></h2>
-      <p class="lead rise">למצוא לבד משהו שאף אחד עוד לא מצא — זה מה שמבדיל תלמידי <span class="nb">Cipher</span> ממקומות אחרים שמכינים ליחידות הטכנולוגיות.</p>
-      <a class="link" href="#challenge" data-track="cta_challenge" data-source="method">ישר לאתגר ↓</a>
+  <section class="chapter" data-chapter="kid-method" data-mood="method" id="method">
+    <div class="wrap split">
+      <div>
+        <h2 class="title split-words">בכל הכנה לומדים להגן ולתקוף. <em>אצלנו לומדים גם לחקור.</em></h2>
+        <p class="lead rise">למצוא לבד משהו שאף אחד עוד לא מצא — זה מה שמבדיל תלמידי <span class="nb">Cipher</span> ממקומות אחרים שמכינים ליחידות הטכנולוגיות.</p>
+        <a class="link" href="#challenge" data-track="cta_challenge" data-source="method">ישר לאתגר ↓</a>
+      </div>
+      <div>
+        <div class="sys" data-mode="defend" aria-hidden="true"></div>
+        <div class="lens" role="group" aria-label="איך מסתכלים על המערכת">
+          <button type="button" data-mode="defend" aria-pressed="true">מגן</button>
+          <button type="button" data-mode="attack" aria-pressed="false">תוקף</button>
+          <button type="button" data-mode="research" aria-pressed="false">חוקר</button>
+        </div>
+        <p class="lens-say" aria-live="polite"></p>
+      </div>
     </div>
   </section>
 
   <!-- 4 — who teaches ─────────────────────────────────────────────────── -->
-  <section class="chapter" data-chapter="kid-nir" id="nir">
+  <section class="chapter" data-chapter="kid-nir" data-mood="nir" id="nir">
     <div class="wrap split">
       <div>
         <p class="bridge rise">מי שילמד אתכם:</p>
@@ -92,35 +106,41 @@
   </section>
 
   <!-- 5 — the program, briefly ────────────────────────────────────────── -->
-  <section class="chapter" data-chapter="kid-program" id="program">
-    <div class="wrap">
+  <section class="chapter" data-chapter="kid-program" data-mood="program" id="program">
+    <div class="wrap wrap--dial">
       <h2 class="title split-words">30&nbsp;מפגשים. מעבדות שבהן מתאמנים גם בטכניון.</h2>
       <p class="lead rise">פעמיים בשבוע, מהבית, עם חוקר אמיתי. מתרגלים במעבדות של <span class="cycube__name ltr">CyCube</span>, שבהן מתאמנים גם סטודנטים בטכניון ואנשי הסייבר של בנק ישראל. ובין המפגשים: קהילת דיסקורד, לא לבד אף פעם.</p>
+      <div class="loop loop--solo">
+        <span class="loop__ring" aria-hidden="true"></span>
+        <span class="loop__count" aria-hidden="true"><b>30</b><small>מפגשים</small></span>
+      </div>
       <p class="say rise">למצטיינים: מסלול המשך ב־<span class="re ltr">Reverse Engineering</span>, בקבלה נפרדת.</p>
       <a class="link" href="#challenge" data-track="cta_challenge" data-source="program">ישר לאתגר ↓</a>
     </div>
   </section>
 
   <!-- 6 — what do you already have ────────────────────────────────────── -->
-  <section class="chapter" data-chapter="kid-check" id="check">
+  <section class="chapter" data-chapter="kid-check" data-mood="filter" id="check">
     <div class="wrap check">
       <h2 class="check__title title split-words">מה כבר יש לכם?</h2>
       <p class="check__ask">סמנו מה כבר נכון לגביכם:</p>
       <div class="check__grid" role="group" aria-label="דרישות הקדם">
-        <button type="button" aria-pressed="false" data-req="python"><span class="ltr">Python</span> בסיסי: לולאות, תנאים, פונקציות</button>
-        <button type="button" aria-pressed="false" data-req="networks">רשתות: <span class="ltr">IP, DNS, HTTP</span></button>
-        <button type="button" aria-pressed="false" data-req="os"><span class="ltr">Windows</span> בביטחון, <span class="ltr">Linux</span> בסיסי</button>
-        <button type="button" aria-pressed="false" data-req="cli">שורת פקודה ומערכת קבצים</button>
-        <button type="button" aria-pressed="false" data-req="english">קוראים תיעוד טכני באנגלית</button>
-        <button type="button" aria-pressed="false" data-req="self">לומדים לבד ולא מוותרים</button>
-        <button type="button" aria-pressed="false" data-req="pc">מחשב שמריץ מכונות וירטואליות</button>
+        <button type="button" aria-pressed="false" data-req="python"><span><span class="ltr">Python</span> בסיסי: לולאות, תנאים, פונקציות</span></button>
+        <button type="button" aria-pressed="false" data-req="networks"><span>רשתות: <span class="ltr">IP, DNS, HTTP</span></span></button>
+        <button type="button" aria-pressed="false" data-req="os"><span><span class="ltr">Windows</span> בביטחון, <span class="ltr">Linux</span> בסיסי</span></button>
+        <button type="button" aria-pressed="false" data-req="cli"><span>שורת פקודה ומערכת קבצים</span></button>
+        <button type="button" aria-pressed="false" data-req="english"><span>קוראים תיעוד טכני באנגלית</span></button>
+        <button type="button" aria-pressed="false" data-req="self"><span>לומדים לבד ולא מוותרים</span></button>
+        <button type="button" aria-pressed="false" data-req="pc"><span>מחשב שמריץ מכונות וירטואליות</span></button>
       </div>
-      <p class="check__say" aria-live="polite">גם אם סימנתם מעט — האתגר פתוח לכולם.</p>
+      <div class="check__out" aria-live="polite">
+        <p class="check__say">גם אם סימנתם מעט — האתגר פתוח לכולם.</p>
+      </div>
     </div>
   </section>
 
   <!-- 7 — the challenge itself ────────────────────────────────────────── -->
-  <section class="chapter turn" data-chapter="kid-challenge" id="challenge">
+  <section class="chapter turn" data-chapter="kid-challenge" data-mood="turn" id="challenge">
     <div class="wrap">
       <h2 class="title split-words">עכשיו תורכם.</h2>
       <p class="lead rise">אתגר <span class="ltr">Cipher</span>: לפרוץ לשרת ייעודי ולהשיג את ה־<span class="ltr">FLAG</span>. ברשותכם שלושה רמזים. אין להשתמש ב־<span class="ltr">AI</span>. <strong>מי שפותר מקבל יתרון משמעותי בקבלה.</strong></p>
@@ -137,7 +157,7 @@
   </section>
 
   <!-- 8 — if you get in ───────────────────────────────────────────────── -->
-  <section class="chapter" data-chapter="kid-in" id="in">
+  <section class="chapter" data-chapter="kid-in" data-mood="fit" id="in">
     <div class="wrap">
       <h2 class="title split-words">אם תתקבלו, זה לא נגמר ביחידה.</h2>
       <p class="lead rise">הידע הזה לא נשאר ברקע לעולם. הוא ממשיך איתכם — גם בצבא, וגם אחרי. ההורים שלכם כבר קיבלו מאיתנו את כל הפרטים. מה שחסר להם זה לשמוע שזה מגיע מכם.</p>

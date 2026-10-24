@@ -23,7 +23,7 @@
 <!-- the mark's digits only: Saira cut down to "0" and "1" -->
 <link href="https://fonts.googleapis.com/css2?family=Saira:wght@700&text=01&display=block" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
-<script>document.documentElement.classList.add('js')</script>
+<script>document.documentElement.classList.add('js'); if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('is-still')</script>
 <script src="assets/vendor/gsap.min.js" defer></script>
 <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="assets/vendor/lenis.min.js" defer></script>
@@ -99,6 +99,7 @@
 </script>
 </head>
 <body>
+<div class="atmo" aria-hidden="true"><i></i><i></i><i></i></div>
 
 <header class="top">
   <div class="wrap top__in">
@@ -111,26 +112,18 @@
 
 <main id="top">
 
-  <!-- ─── hero: the mark assembles, then the film plays in its keyhole ─────── -->
+  <!-- ─── hero: the rings click into the mark, then the keyhole opens on the film ── -->
   <section class="hero" data-chapter="hero">
     <canvas class="hero__field" aria-hidden="true"></canvas>
-    <span class="hero__r" aria-hidden="true"></span>
-    <div class="film" data-state="idle">
-      <p class="film__q">מה קורה כש<strong>חוקרי סייבר</strong> פוגשים את המיונים?</p>
-      <div class="film__frame">
-        <img class="film__still" src="assets/img/film-poster.webp" alt="" width="960" height="540">
-        <video class="film__video" muted playsinline preload="none" poster="assets/img/film-poster.webp"></video>
-        <p class="film__note" hidden>סרטון זמני. כאן יעלה הסרטון של ניר.</p>
+    <div class="wrap hero__in">
+      <div class="hero__stage">
+        <p class="film__q" data-film-fade>מה קורה כש<strong>חוקרי סייבר</strong> פוגשים את המיונים?</p>
+        <div class="hero__mark" aria-hidden="true"></div>
+        <button class="film__cap" type="button" data-film-open="caption" data-film-fade>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
+          <span>צפו בניר יהושע מסביר מה לומדים באקדמיה — ולמי ההכנה הזאת מתאימה</span>
+        </button>
       </div>
-      <button class="film__key" type="button" data-film-open="mark" aria-label="צפייה בסרטון: ניר יהושע מסביר מה לומדים באקדמיה, ולמי ההכנה מתאימה"></button>
-      <button class="film__cta" type="button" data-film-open="cta">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 8.2v7.6l6-3.8z" fill="currentColor"/></svg>
-        <span>צפו בניר יהושע מסביר מה לומדים באקדמיה — ולמי ההכנה הזאת מתאימה</span>
-      </button>
-      <div class="film__veil" hidden></div>
-      <button class="film__x" type="button" aria-label="סגירת הסרטון" hidden>×</button>
-    </div>
-    <div class="wrap">
       <div class="copy">
         <h1 class="display decode">
           <span class="w">ההכנה</span> <span class="w">העמוקה</span> <span class="w">ביותר</span>
@@ -148,6 +141,21 @@
         </div>
       </div>
     </div>
+    <div class="film" data-state="idle">
+      <div class="film__frame">
+        <img class="film__still" src="assets/img/film-poster.webp" alt="" width="960" height="540">
+        <video class="film__video" muted playsinline preload="none" poster="assets/img/film-poster.webp"></video>
+        <p class="film__note" hidden>סרטון זמני. כאן יעלה הסרטון של ניר.</p>
+      </div>
+      <button class="film__key" type="button" data-film-open="mark" aria-label="צפייה בסרטון עם סאונד: ניר יהושע מסביר מה לומדים באקדמיה, ולמי ההכנה מתאימה">
+        <span class="film__sound" data-icon="sound" aria-hidden="true">
+          <svg class="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <svg class="i-play" viewBox="0 0 24 24"><path d="M8.5 5.5v13L19 12z" fill="currentColor"/></svg>
+        </span>
+      </button>
+      <div class="film__veil" hidden></div>
+      <button class="film__x" type="button" aria-label="סגירת הסרטון" hidden>×</button>
+    </div>
   </section>
 
   <!-- ─── the same preparation ──────────────────────────────────────────── -->
@@ -155,7 +163,7 @@
     <div class="wrap">
       <h2 class="title split-words">כולם מגיעים למיונים עם אותה הכנה.</h2>
       <p class="lead rise">אותם יסודות, אותם כלים, אותם תרגילים. כשכולם יודעים אותו דבר, <strong>היתרון הסטטיסטי עובר למי שהלך עמוק יותר.</strong></p>
-      <div class="zeros" aria-hidden="true"></div>
+      <canvas class="wall" aria-hidden="true"></canvas>
     </div>
   </section>
 
@@ -189,17 +197,10 @@
       <div class="hp" data-step="0">
         <div class="hp__stage" aria-hidden="true">
           <svg viewBox="0 0 320 200" fill="none">
-            <g class="hp__inside">
-              <rect x="44" y="64" width="232" height="6" rx="3" fill="rgba(160,190,255,.22)"/>
-              <rect x="70" y="80" width="206" height="6" rx="3" fill="rgba(160,190,255,.22)"/>
-              <rect x="44" y="96" width="180" height="6" rx="3" fill="rgba(61,123,255,.6)"/>
-              <rect x="96" y="112" width="180" height="6" rx="3" fill="rgba(160,190,255,.22)"/>
-              <rect x="60" y="128" width="216" height="6" rx="3" fill="rgba(160,190,255,.22)"/>
-              <path class="hp__trace" d="M92 162 C 110 130, 160 140, 182 99 M92 162 C 140 150, 210 150, 246 115 M92 162 C 120 110, 200 90, 228 67" stroke="#ffb020" stroke-width="1.4" stroke-dasharray="4 4"/>
-              <g class="hp__flaws">
-                <circle cx="182" cy="99" r="6"/><circle cx="246" cy="115" r="6"/><circle cx="228" cy="67" r="6"/>
-              </g>
-            </g>
+            <defs>
+              <clipPath id="hp-seen"><rect class="hp__cut" x="320" y="0" width="0" height="200"/></clipPath>
+              <linearGradient id="hp-glow" x1="0" x2="1"><stop offset="0" stop-color="#7fd4ff" stop-opacity="0"/><stop offset="1" stop-color="#7fd4ff" stop-opacity=".45"/></linearGradient>
+            </defs>
             <g class="hp__win">
               <rect class="hp__glass" x="20" y="20" width="280" height="164" rx="10" fill="#0d1526" stroke="rgba(160,196,255,.55)"/>
               <path d="M20 44h280" stroke="rgba(160,196,255,.35)"/>
@@ -216,6 +217,32 @@
               <rect class="hp__key" x="44" y="146" width="96" height="30" rx="4" fill="#1f63ff"/>
               <text x="92" y="166" text-anchor="middle" font-family="Heebo, sans-serif" font-weight="700" font-size="13" fill="#fff">המשך</text>
             </g>
+            <!-- the x-ray: what the window looks like from inside, revealed where the scan has passed -->
+            <g class="hp__inside" clip-path="url(#hp-seen)">
+              <rect x="21" y="45" width="278" height="138" rx="9" fill="#060b16" fill-opacity=".94"/>
+              <g class="hp__rows">
+                <rect x="44" y="60" width="232" height="6" rx="3" fill="rgba(160,190,255,.26)"/>
+                <rect x="70" y="74" width="206" height="6" rx="3" fill="rgba(160,190,255,.26)"/>
+                <rect x="44" y="88" width="180" height="6" rx="3" fill="rgba(61,123,255,.7)"/>
+                <rect x="96" y="102" width="180" height="6" rx="3" fill="rgba(160,190,255,.26)"/>
+                <rect x="60" y="116" width="216" height="6" rx="3" fill="rgba(160,190,255,.26)"/>
+                <rect x="84" y="130" width="192" height="6" rx="3" fill="rgba(160,190,255,.18)"/>
+              </g>
+              <path class="hp__trace" d="M92 166 C 110 130, 160 130, 182 91 M92 166 C 140 150, 210 140, 246 105 M92 166 C 120 110, 200 80, 228 63" stroke="#ffb020" stroke-width="1.4" stroke-dasharray="4 4"/>
+              <rect x="44" y="146" width="96" height="30" rx="4" stroke="#ffb020" stroke-opacity=".85"/>
+              <g class="hp__flaws">
+                <circle cx="182" cy="91" r="6"/><circle cx="246" cy="105" r="6"/><circle cx="228" cy="63" r="6"/>
+              </g>
+            </g>
+            <g class="hp__beam" transform="translate(320 0)">
+              <rect x="-16" y="20" width="16" height="164" fill="url(#hp-glow)"/>
+              <rect x="-1" y="18" width="2" height="168" fill="#c9eeff"/>
+            </g>
+            <g class="hp__stamps" font-family="JetBrains Mono, monospace" font-weight="500" font-size="11.5" direction="ltr">
+              <g class="stamp" transform="translate(96 74) rotate(-7)"><rect x="-62" y="-14" width="124" height="28" rx="2"/><rect x="-58" y="-10" width="116" height="20" rx="1"/><text y="4" text-anchor="middle">CVE-2026-12554</text></g>
+              <g class="stamp" transform="translate(212 112) rotate(5)"><rect x="-62" y="-14" width="124" height="28" rx="2"/><rect x="-58" y="-10" width="116" height="20" rx="1"/><text y="4" text-anchor="middle">CVE-2026-12555</text></g>
+              <g class="stamp" transform="translate(126 150) rotate(-3)"><rect x="-62" y="-14" width="124" height="28" rx="2"/><rect x="-58" y="-10" width="116" height="20" rx="1"/><text y="4" text-anchor="middle">CVE-2026-12556</text></g>
+            </g>
           </svg>
         </div>
         <div class="hp__tabs" role="tablist" aria-label="מה ניר מצא">
@@ -224,7 +251,7 @@
           <button type="button" role="tab" data-step="2" aria-selected="false">התוצאה</button>
         </div>
         <p class="hp__say" aria-live="polite"></p>
-        <p class="say rise">וזו רק אחת. ב־2026 לבד פרסמה Cipher יותר מ־<strong class="hot">30 חולשות</strong> מתועדות.</p>
+        <p class="say rise">וזו רק אחת. ב־2026 לבד פרסמה Cipher יותר מ־<strong class="hot"><span data-count="30">30</span> חולשות</strong> מתועדות.</p>
         <div class="links links--pair">
           <a class="link" href="https://ciphersecuritylabs.com/papers/rooted-in-trust-breaking-hp-easy-starts-macos-privilege-boundaries/" target="_blank" rel="noopener" data-track="proof_link" data-target="hp-paper">המחקר המלא על HP ↗</a>
           <a class="link" href="https://ciphersecuritylabs.com/CVE-Tracker" target="_blank" rel="noopener" data-track="proof_link" data-target="cve-tracker">כל החולשות שפרסמנו ↗</a>
@@ -233,28 +260,24 @@
     </div>
     <div class="wrap press">
       <h3 class="press__title rise">כשהחוקרים של Cipher מוצאים חולשה, עיתונות הסייבר בעולם כותבת על זה.</h3>
-      <div class="press__rail" role="list">
-        <a class="story" role="listitem" href="https://ciphersecuritylabs.com/in-the-news" target="_blank" rel="noopener" data-track="press_open" data-target="hp">
-          <span class="story__n">6 כתבות</span>
-          <b class="story__name ltr">HP Easy Start</b>
+      <div class="press__stack" role="list">
+        <a class="story" style="--tilt:-.6deg" role="listitem" href="https://ciphersecuritylabs.com/in-the-news" target="_blank" rel="noopener" data-track="press_open" data-target="hp">
+          <span class="story__head"><b class="story__name ltr">HP Easy Start</b><span class="story__n">6 כתבות</span></span>
           <span class="story__what">שלוש חולשות בדרגת חומרה גבוהה בתוכנה שמתקינה מדפסות HP במחשבי Mac.</span>
           <span class="story__by ltr">Cyber Security News · GBHackers · CyberPress · HackersRadar · CyberWebSpider · SecurityBrief</span>
         </a>
-        <a class="story" role="listitem" href="https://ciphersecuritylabs.com/in-the-news" target="_blank" rel="noopener" data-track="press_open" data-target="cudy">
-          <span class="story__n">6 כתבות</span>
-          <b class="story__name ltr">Cudy WR3000</b>
+        <a class="story" style="--tilt:.9deg" role="listitem" href="https://ciphersecuritylabs.com/in-the-news" target="_blank" rel="noopener" data-track="press_open" data-target="cudy">
+          <span class="story__head"><b class="story__name ltr">Cudy WR3000</b><span class="story__n">6 כתבות</span></span>
           <span class="story__what">חולשות קריטיות בנתב ביתי, שדווחו ליצרן לפי הנהלים.</span>
           <span class="story__by ltr">HackRead · SecurityBrief · SecNews · BugsToday · Brinztech</span>
         </a>
-        <a class="story" role="listitem" href="https://ciphersecuritylabs.com/in-the-news" target="_blank" rel="noopener" data-track="press_open" data-target="macos">
-          <span class="story__n">3 כתבות</span>
-          <b class="story__name ltr">textutil · KeePassXC</b>
+        <a class="story" style="--tilt:-1.1deg" role="listitem" href="https://ciphersecuritylabs.com/in-the-news" target="_blank" rel="noopener" data-track="press_open" data-target="macos">
+          <span class="story__head"><b class="story__name ltr">textutil · KeePassXC</b><span class="story__n">3 כתבות</span></span>
           <span class="story__what">מחקר על כלים מוכרים ב־macOS שיכולים להפוך לכלי תקיפה.</span>
           <span class="story__by ltr">Cyber Security News · GBHackers · VPNCentral</span>
         </a>
-        <a class="story" role="listitem" href="https://ciphersecuritylabs.com/in-the-news" target="_blank" rel="noopener" data-track="press_open" data-target="pfu">
-          <span class="story__n">כתבה ביפן</span>
-          <b class="story__name ltr">PFU Image Scanner</b>
+        <a class="story" style="--tilt:.7deg" role="listitem" href="https://ciphersecuritylabs.com/in-the-news" target="_blank" rel="noopener" data-track="press_open" data-target="pfu">
+          <span class="story__head"><b class="story__name ltr">PFU Image Scanner</b><span class="story__n">כתבה ביפן</span></span>
           <span class="story__what">חולשות בדרייבר של סורקי מסמכים ל־Linux, בדיווח רשמי ביפן.</span>
           <span class="story__by ltr">ScanNetSecurity</span>
         </a>
@@ -278,8 +301,8 @@
           <li>HP</li><li>Dell</li><li>Ericsson</li><li>Fujitsu</li>
         </ul>
         <a class="book" href="https://www.amazon.com/dp/1801079749" target="_blank" rel="noopener" data-track="proof_link" data-target="book">
-          <span class="book__cover"><img src="assets/img/book-cover.webp" alt="כריכת הספר Antivirus Bypass Techniques" width="810" height="1000" loading="lazy"></span>
-          <span class="book__text"><b>הספר שכתב על עקיפת אנטי־וירוס ↗</b><span class="nb">Antivirus Bypass Techniques</span>, הוצאת Packt, 2021. נכתב יחד עם אוריאל קוסייב.</span>
+          <span class="book__obj"><span class="book__cover"><img src="assets/img/book-cover.webp" alt="כריכת הספר Antivirus Bypass Techniques" width="810" height="1000" loading="lazy"></span><span class="book__edge" aria-hidden="true"></span><span class="book__spine" aria-hidden="true"></span><span class="book__back" aria-hidden="true"></span></span>
+          <span class="book__text"><b>הספר שכתב על עקיפת <span class="nb">אנטי־וירוס ↗</span></b><span class="nb">Antivirus Bypass Techniques</span>, הוצאת Packt, 2021. נכתב יחד עם אוריאל קוסייב.</span>
         </a>
         <p class="lead">לצידו מלווים את התלמידים חוקרי Cipher: בין המפגשים ובקהילה.</p>
       </div>
@@ -294,6 +317,7 @@
         <p class="lead rise">פעמיים בשבוע, שעתיים, מהבית. ובין המפגשים תמיד יש עם מי לחשוב.</p>
         <div class="loop">
           <span class="loop__ring" aria-hidden="true"></span>
+          <span class="loop__count" aria-hidden="true"><b>30</b><small>מפגשים</small></span>
           <span class="loop__dot" aria-hidden="true"></span>
           <button class="loop__node" type="button" aria-pressed="true" data-say="פעמיים בשבוע, שעתיים, מהבית. לומדים איך מערכת עובדת, ואז מפרקים אותה.">מפגש חי עם ניר</button>
           <button class="loop__node" type="button" aria-pressed="false" data-say="נתקעו בתרגיל? כותבים בוואטסאפ ומקבלים תשובה מחוקר. לא מחכים לשיעור הבא.">ליווי בוואטסאפ</button>
@@ -308,47 +332,58 @@
           <p class="lead">סביבות תרגול בענן, שבהן מתאמנים גם סטודנטים בטכניון ואנשי הסייבר של בנק ישראל. מקום בטוח לנסות, לטעות ולהבין. <a class="link link--inline" href="https://www.cycube.io/en/" target="_blank" rel="noopener" data-track="proof_link" data-target="cycube">להכיר את CyCube ↗</a></p>
           <div class="lab" aria-live="polite">
             <div class="lab__steps"><span class="is-on">משימה</span><span>ניסיון</span><span>הבנה</span></div>
-            <p class="lab__line">למצוא איך השרת מזהה משתמשים.</p>
+            <p class="lab__line"><span class="sr">למצוא איך השרת מזהה משתמשים.</span><span class="lab__type" aria-hidden="true">למצוא איך השרת מזהה משתמשים.</span></p>
           </div>
         </div>
         <p class="lead program__end"><strong>בסוף: סימולציית מיון ומבחן CTF.</strong> תעודה מקבלים רק אם עוברים. למצטיינים: מסלול המשך ב־<span class="re ltr">Reverse Engineering</span>, בקבלה נפרדת.</p>
       </div>
     </div>
-    <div class="wrap depth">
-      <h3 class="depth__title rise">18 פרקים. מהיסודות ועד מחקר חולשות.</h3>
-      <p class="depth__how">החליקו, וכל פרק יורד שכבה לעומק. לחיצה על פרק פותחת את הנושאים שלו.</p>
-      <div class="depth__rail" role="list" aria-label="פרקי הסילבוס">
-        <div class="tier" data-tier="1" role="listitem">
-          <span class="tier__name">מבינים את המערכת</span>
-          <div class="tier__row">
-            <button type="button" data-chapter-n="1">יסודות המחשוב</button>
-            <button type="button" data-chapter-n="2">תכנות ופיתוח</button>
-            <button type="button" data-chapter-n="3">תקשורת ורשתות</button>
-            <button type="button" data-chapter-n="4">קריפטוגרפיה</button>
-            <button type="button" data-chapter-n="5">טכנולוגיות <span class="ltr">Web</span></button>
+  </section>
+
+  <!-- ─── the syllabus: the mark's rings are the course, outside in ──────── -->
+  <section class="chapter course" data-chapter="syllabus" id="course" aria-labelledby="course-title">
+    <div class="course__track">
+      <div class="course__stage">
+        <canvas class="course__field" aria-hidden="true"></canvas>
+        <div class="wrap course__in">
+          <div class="course__head">
+            <h2 class="title split-words" id="course-title">18 פרקים. מהיסודות ועד מחקר&nbsp;חולשות.</h2>
+            <p class="course__how">גוללים, וכל שלב יורד טבעת אחת פנימה. לחיצה על פרק פותחת את הנושאים שלו.</p>
           </div>
-        </div>
-        <div class="tier" data-tier="2" role="listitem">
-          <span class="tier__name">לומדים לבדוק אותה</span>
-          <div class="tier__row">
-            <button type="button" data-chapter-n="6">מיפוי מערכת</button>
-            <button type="button" data-chapter-n="7">מתודולוגיית בדיקות</button>
-            <button type="button" data-chapter-n="8">אבטחת יישומי <span class="ltr">Web</span></button>
-            <button type="button" data-chapter-n="9">זהויות והרשאות</button>
-            <button type="button" data-chapter-n="10">אבטחת <span class="ltr">API</span></button>
-            <button type="button" data-chapter-n="11">כלי בדיקות אבטחה</button>
-            <button type="button" data-chapter-n="12">אוטומציה בסייבר</button>
-          </div>
-        </div>
-        <div class="tier" data-tier="3" role="listitem">
-          <span class="tier__name">חושבים כמו חוקרים</span>
-          <div class="tier__row">
-            <button type="button" data-chapter-n="13">חקר חולשות</button>
-            <button type="button" data-chapter-n="14">חשיבה מחקרית</button>
-            <button type="button" data-chapter-n="15"><span class="ltr">CTF</span> ותרגול מעשי</button>
-            <button type="button" data-chapter-n="16">כתיבה ודיווח מקצועי</button>
-            <button type="button" data-chapter-n="17">מיומנויות עבודה</button>
-            <button type="button" data-chapter-n="18">פרויקט ומבחן מסכם</button>
+          <div class="course__mark" aria-hidden="true"></div>
+          <div class="course__panel">
+            <div class="course__tabs" role="tablist" aria-label="שלבי הסילבוס">
+              <button type="button" role="tab" id="course-tab-1" aria-controls="course-tier-1" aria-selected="true" data-tier="1">מבינים את המערכת</button>
+              <button type="button" role="tab" id="course-tab-2" aria-controls="course-tier-2" aria-selected="false" data-tier="2">לומדים לבדוק אותה</button>
+              <button type="button" role="tab" id="course-tab-3" aria-controls="course-tier-3" aria-selected="false" data-tier="3">חושבים כמו חוקרים</button>
+            </div>
+            <div class="tier" id="course-tier-1" role="tabpanel" aria-labelledby="course-tab-1" data-tier="1">
+              <h3 class="tier__name">מבינים את המערכת</h3>
+              <button type="button" data-chapter-n="1">יסודות המחשוב</button>
+              <button type="button" data-chapter-n="2">תכנות ופיתוח</button>
+              <button type="button" data-chapter-n="3">תקשורת ורשתות</button>
+              <button type="button" data-chapter-n="4">קריפטוגרפיה</button>
+              <button type="button" data-chapter-n="5">טכנולוגיות <span class="ltr">Web</span></button>
+            </div>
+            <div class="tier" id="course-tier-2" role="tabpanel" aria-labelledby="course-tab-2" data-tier="2">
+              <h3 class="tier__name">לומדים לבדוק אותה</h3>
+              <button type="button" data-chapter-n="6">מיפוי מערכת</button>
+              <button type="button" data-chapter-n="7">מתודולוגיית בדיקות</button>
+              <button type="button" data-chapter-n="8">אבטחת יישומי <span class="ltr">Web</span></button>
+              <button type="button" data-chapter-n="9">זהויות והרשאות</button>
+              <button type="button" data-chapter-n="10">אבטחת <span class="ltr">API</span></button>
+              <button type="button" data-chapter-n="11">כלי בדיקות אבטחה</button>
+              <button type="button" data-chapter-n="12">אוטומציה בסייבר</button>
+            </div>
+            <div class="tier" id="course-tier-3" role="tabpanel" aria-labelledby="course-tab-3" data-tier="3">
+              <h3 class="tier__name">חושבים כמו חוקרים</h3>
+              <button type="button" data-chapter-n="13">חקר חולשות</button>
+              <button type="button" data-chapter-n="14">חשיבה מחקרית</button>
+              <button type="button" data-chapter-n="15"><span class="ltr">CTF</span> ותרגול מעשי</button>
+              <button type="button" data-chapter-n="16">כתיבה ודיווח מקצועי</button>
+              <button type="button" data-chapter-n="17">מיומנויות עבודה</button>
+              <button type="button" data-chapter-n="18">פרויקט ומבחן מסכם</button>
+            </div>
           </div>
         </div>
       </div>
@@ -380,14 +415,14 @@
         <h3 class="check__title">מה הנערים צריכים לדעת כבר מעכשיו?</h3>
         <p class="check__ask">סמנו מה נכון עבורם:</p>
         <div class="check__grid" role="group" aria-label="דרישות הקדם">
-          <button type="button" aria-pressed="false" data-req="python"><span class="ltr">Python</span> בסיסי: לולאות, תנאים, פונקציות</button>
-          <button type="button" aria-pressed="false" data-req="networks">רשתות: <span class="ltr">IP, DNS, HTTP</span></button>
-          <button type="button" aria-pressed="false" data-req="os"><span class="ltr">Windows</span> בביטחון, <span class="ltr">Linux</span> בסיסי</button>
-          <button type="button" aria-pressed="false" data-req="cli">שורת פקודה ומערכת קבצים</button>
-          <button type="button" aria-pressed="false" data-req="english">קוראים תיעוד טכני באנגלית</button>
-          <button type="button" aria-pressed="false" data-req="self">לומדים לבד, ויש זמן לתרגל בין המפגשים</button>
-          <button type="button" aria-pressed="false" data-req="pc">מחשב שמריץ מכונות וירטואליות</button>
-          <button class="check__unsure" type="button" aria-pressed="false" data-req="unsure">עדיין לא בטוחים מה הם יודעים</button>
+          <button type="button" aria-pressed="false" data-req="python"><span><span class="ltr">Python</span> בסיסי: לולאות, תנאים, פונקציות</span></button>
+          <button type="button" aria-pressed="false" data-req="networks"><span>רשתות: <span class="ltr">IP, DNS, HTTP</span></span></button>
+          <button type="button" aria-pressed="false" data-req="os"><span><span class="ltr">Windows</span> בביטחון, <span class="ltr">Linux</span> בסיסי</span></button>
+          <button type="button" aria-pressed="false" data-req="cli"><span>שורת פקודה ומערכת קבצים</span></button>
+          <button type="button" aria-pressed="false" data-req="english"><span>קוראים תיעוד טכני באנגלית</span></button>
+          <button type="button" aria-pressed="false" data-req="self"><span>לומדים לבד, ויש זמן לתרגל בין המפגשים</span></button>
+          <button type="button" aria-pressed="false" data-req="pc"><span>מחשב שמריץ מכונות וירטואליות</span></button>
+          <button class="check__unsure" type="button" aria-pressed="false" data-req="unsure"><span>עדיין לא בטוחים מה הם יודעים</span></button>
         </div>
         <div class="check__out" aria-live="polite">
           <p class="check__say">כל סימון משנה את הצעד הבא שנציע לכם.</p>
@@ -463,11 +498,20 @@
     </div>
   </section>
 
+  <!-- ─── the bookend: the mark comes together once more, the way in is open ── -->
+  <section class="coda" data-chapter="coda" aria-labelledby="coda-line">
+    <canvas class="coda__field" aria-hidden="true"></canvas>
+    <div class="wrap coda__in">
+      <p class="coda__line" id="coda-line">15 מקומות בלבד.</p>
+      <div class="coda__mark" aria-hidden="true"></div>
+      <a class="btn btn--solid coda__go" href="#fit" data-track="cta_fit" data-source="coda">בדיקת התאמה</a>
+    </div>
+  </section>
+
 </main>
 
 <footer class="foot" data-chapter="end">
   <div class="wrap">
-    <img class="foot__logo" src="assets/img/logo-wordmark.webp" alt="Cipher Security Academy" width="1000" height="222" loading="lazy">
     <div class="links">
       <a class="link" href="https://ciphersecuritylabs.com/" target="_blank" rel="noopener">Cipher Security Labs ↗</a>
       <a class="link" href="https://ciphersecuritylabs.com/research" target="_blank" rel="noopener">המחקרים ↗</a>

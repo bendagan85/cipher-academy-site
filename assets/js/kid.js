@@ -4,10 +4,15 @@
 // — so it reads as one brand with the parents' page.
 import { track, watchChapters, journey } from './track.js';
 import { whatsapp, reportOpen } from './share.js';
-import { createVortex } from './vortex.js';
+import { createVortex, boxLayout } from './vortex.js';
 import { mountChallenge } from './challenge.js';
 import { CONFIG } from './config.js';
-import { decode, reveals, reduce } from './motion.js';
+import { decode, reveals, reduce, countUp, remeasure } from './motion.js';
+import { atmosphere } from './atmos.js';
+import { createPortrait } from './portrait.js';
+import { arcRing } from './rings.js';
+import { mountLenses } from './layers.js';
+import { createDial } from './dial.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -24,25 +29,32 @@ document.addEventListener('click', (e) => {
 });
 addEventListener('scroll', () => $('.top').classList.toggle('is-solid', scrollY > 40), { passive: true });
 
-/* ── hero: the same mark, no film — this page stays light ─────────────── */
+/* ── hero: the same mark storming in, no film — this page stays light ─── */
 {
-  const probe = $('.hero__r');
-  createVortex($('.hero__field'), {
-    layout: (w, h) => {
-      if (w >= 900) {
-        const R = Math.min(h * 0.27, w * 0.19, 290);
-        return { cx: w * 0.27, cy: h * 0.5, R };
-      }
-      // the copy's top padding (site.css, .hero .copy) assumes this same top edge
-      const R = probe.getBoundingClientRect().width || Math.min(w * 0.4, 170);
-      return { cx: w / 2, cy: 132 + 1.123 * R, R };
-    },
-  });
+  const canvas = $('.hero__field');
+  const box = $('.hero__mark');
+  const mark = createVortex(canvas, { dust: innerWidth < 700 ? 200 : 340, layout: boxLayout(box, canvas) });
+  new ResizeObserver(() => mark.relayout()).observe(box);
+  document.fonts?.ready?.then(() => mark.relayout());
   decode($('.hero .decode'), 900).then(() => {
     gsap.to('.hero .rise', { opacity: 1, y: 0, duration: reduce ? 0 : 0.8, stagger: 0.1, ease: 'power3.out' });
   });
 }
 reveals();
+atmosphere();
+remeasure();
+
+/* ── who sent this: the count, and Nir in digits ──────────────────────── */
+{
+  countUp($('[data-count]'), 1.6);
+  createPortrait($('.nir__photo'));
+}
+
+/* ── what's different: the system, and the lens that finds what others miss ── */
+mountLenses($('#method'), { markSrc: '../assets/img/logo-mark.webp', onPick: (mode) => track('lens_select', { mode }) });
+
+/* ── the program: thirty sessions around the dial ────────────────────── */
+createDial($('.loop'));
 
 /* ── what do you already have ──────────────────────────────────────────── */
 {
@@ -55,10 +67,14 @@ reveals();
     if (n >= 3) return `${n} מתוך ${buttons.length}. בסיס טוב להתחיל ממנו. האתגר יראה לכם בדיוק איפה אתם.`;
     return `${n} מתוך ${buttons.length}. בדיוק בשביל זה יש מסלול הכנה. אבל האתגר פתוח כבר עכשיו.`;
   }
+  // one arc per box ticked, around the keyhole
+  const ring = arcRing(buttons.length, 'check__ring', 7);
+  $('.check__out').prepend(ring.svg);
   buttons.forEach((b) => b.addEventListener('click', () => {
     const on = b.getAttribute('aria-pressed') !== 'true';
     b.setAttribute('aria-pressed', String(on));
     const n = buttons.filter((x) => x.getAttribute('aria-pressed') === 'true').length;
+    ring.set(n);
     say.textContent = verdict(n);
     clearTimeout(reported);
     reported = setTimeout(() => track('prereq_result', { count: n, page: 'kid', items: buttons.filter((x) => x.getAttribute('aria-pressed') === 'true').map((x) => x.dataset.req).join(',') }), 1500);

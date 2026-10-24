@@ -37,8 +37,8 @@ the lead POST.
 
 ## Pages and chapters
 
-- **Parents' page** (`index.html`) — `hero same method hp nir program filter
-  turn fit faq end`
+- **Parents' page** (`index.html`) — `hero same method hp nir program
+  syllabus filter turn fit faq coda end`
 - **Teen's page** (`kid/`) — `kid-hero kid-who kid-method kid-nir kid-program
   kid-check kid-challenge kid-in end`
 - **Thank-you page** (`thanks/`) — `ack labs next-steps end footer`. Only
@@ -54,21 +54,23 @@ the lead POST.
 - `scroll_depth` `{ pct }` — 25 / 50 / 75 / 100
 - `share_opened` `{ id }` — this visit came through a shared link
 - `proof_link` `{ target }` — book, HP paper, CVE tracker, a CVE record, CyCube, full syllabus
-- `press_open` `{ target }` — a press card (parents page only: `hp cudy macos pfu`)
+- `press_open` `{ target }` — a press card's article was opened (parents page only: `hp cudy macos pfu`)
+- `press_card` `{ target }` — a card at the back of the press stack was tapped and came to the front; that tap doesn't open the article, so it isn't a `press_open`
 - `whatsapp_direct` `{ source }` — the direct WhatsApp number (thanks page header/footer)
 - `parents_page` `{ source }` — a link back to the parents' page
 
 **The challenge** (shared component, `assets/js/challenge.js`, both pages) — every event carries `source: "parents" | "kid"`
-- `challenge_start` `{ source, ready }` — the mark was tapped; `ready` is whether `CONFIG.challenge` is filled in
+- `challenge_start` `{ source, ready, via }` — the lock opened; `via` is `tap` (the keyhole) or `turn` (its rings dragged round far enough); `ready` is whether `CONFIG.challenge` is filled in
 - `challenge_live` `{ source: "fallback" }` — the "open the live challenge" link, shown while `ready` is false
 - `hint_open` `{ n, source }`, `target_copied` `{ ok, source }`
 - `flag_submit` `{ ok, attempt, hints, source }`, `challenge_solved` `{ hints, attempts, source }`
 
 **Parents' page**
-- `cta_fit` `{ source }` — any "בדיקת התאמה" button (header, hero, dock, the solved challenge)
+- `cta_fit` `{ source }` — any "בדיקת התאמה" button: `header hero coda dock solved` (the last is the solved challenge)
 - `lens_select` `{ mode }` — defend / attack / research
 - `hp_step` `{ step }` — 0 outside, 1 inside, 2 result
-- `program_node` `{ node }`, `syllabus_swipe` — the depth-gauge rail was dragged
+- `program_node` `{ node }` — a stop on the program dial was tapped
+- `syllabus_tier` `{ tier, source }` — a syllabus tier (1–3) came up on the mark: `source` is `tab` (its tab was tapped) or `scroll` (scrolled to; once per tier)
 - `prereq_toggle` `{ req, on, count }`, then `prereq_result` `{ count, unsure, items }` after 1.5s of quiet
 - `price_view` — the price was on screen
 - `syllabus_open` `{ source }` — opened from a syllabus-chapter tile (`source: "chapter-<n>"`)
@@ -85,6 +87,8 @@ the lead POST.
 **Teen's page**
 - `cta_challenge` `{ source }`, `cta_who` `{ source }` — `source` is the chapter the link sat in (`hero who method nir program header`)
 - `challenge_interest` `{ ref }` — "I'm in", which opens WhatsApp to the parent
+- `lens_select` `{ mode }` — defend / attack / research, as on the parents' page
+- `prereq_result` `{ count, page: "kid", items }` — the self-check, after 1.5s of quiet
 
 **Thank-you page**
 - `thankyou_view` `{ segment }` — the diagnosis shown (see below)
@@ -94,9 +98,12 @@ the lead POST.
 
 The hero's keyhole plays a muted teaser loop on load and the full file, with
 sound, when tapped. `src`, `teaser: [startSec, endSec]`, and `placeholder`
-(true shows a small "סרטון זמני" badge on open — set to `false` once it's
-Nir's real film). `film_open` `{ source }` (`source` is `"mark"` or `"cta"`),
-`film_play`, `film_complete`, `film_close` `{ at }`.
+(true shows a small "סרטון זמני" note on open — set to `false` once it's
+Nir's real film). `film_open` `{ source }` (`source` is `"mark"` or `"caption"`),
+`film_play`, `film_complete`, `film_close` `{ at }`. With Save-Data on, on
+2G, or when the browser refuses autoplay (iOS low-power mode), the keyhole
+shows the poster (`assets/img/film-poster.webp`) and a play button instead
+of the loop.
 
 ## Attribution: parent → teen → parent
 

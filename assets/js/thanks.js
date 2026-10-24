@@ -5,11 +5,15 @@
 import { CONFIG } from './config.js';
 import { track, watchChapters } from './track.js';
 import { createShare, whatsapp, reportOpen } from './share.js';
-import { reveals, reduce } from './motion.js';
+import { decode, reveals, reduce, countUp } from './motion.js';
 import { diagnose, readPrereq, DIAGNOSIS, REQ_LABELS, THANKS_KEY } from './diagnosis.js';
+import { createVortex, boxLayout } from './vortex.js';
+import { atmosphere } from './atmos.js';
+import { createPortrait } from './portrait.js';
+import { arcRing } from './rings.js';
 
 const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function readState() {
   try {
@@ -23,10 +27,29 @@ const state = readState();
 const segment = state?.segment || diagnose({}, readPrereq()) || 'close';
 const D = DIAGNOSIS[segment] || DIAGNOSIS.close;
 
-/* ── the diagnosis ─────────────────────────────────────────────────────── */
-$('[data-ack-hi]').textContent = state?.first ? `תודה, ${state.first}.` : 'תודה.';
-$('[data-ack-head]').textContent = D.head;
+/* ── the diagnosis, decoded while the mark unlocks ─────────────────────── */
+const hi = $('[data-ack-hi]');
+hi.textContent = state?.first ? `תודה, ${state.first}.` : 'תודה.';
+// the thanks itself comes first; the rest of the copy waits for the headline
+window.gsap?.to(hi, { opacity: 1, y: 0, duration: reduce ? 0 : 0.6, ease: 'power3.out' });
+const head = $('[data-ack-head]');
+head.setAttribute('aria-label', D.head);
+head.innerHTML = D.head.split(' ').map((w) => `<span class="w">${esc(w)}</span>`).join(' ');
 $('[data-ack-body]').textContent = D.body;
+
+// The mark arrives locked, its rings turned out of line, then spins home and
+// clicks in ring by ring and opens a little: the first step is done. The copy
+// under the headline rises once the headline has resolved.
+{
+  const canvas = $('.ack__field');
+  const box = $('.ack__mark');
+  const mark = createVortex(canvas, { intro: reduce ? 'none' : 'scrambled', dust: reduce ? 0 : 120, layout: boxLayout(box, canvas, 0.12) });
+  new ResizeObserver(() => mark.relayout()).observe(box);
+  document.fonts?.ready?.then(() => mark.relayout());
+  if (reduce) mark.setOpen(0.5, true);
+  else setTimeout(() => mark.unlock().then(() => mark.setOpen(0.5)), 650);
+}
+const settled = Promise.race([decode(head, 300), new Promise((r) => setTimeout(r, 2600))]);
 
 /* ── prerequisite recap ───────────────────────────────────────────────── */
 {
@@ -36,6 +59,11 @@ $('[data-ack-body]').textContent = D.body;
     box.hidden = false;
     const title = $('[data-prereq-title]', box);
     const body = $('[data-prereq-body]', box);
+    // the same ring of arcs as the checklist they ticked on the main page
+    const ring = arcRing(p.of || Object.keys(REQ_LABELS).length, 'check__ring', 7);
+    ring.set(p.unsure ? 0 : p.n || 0);
+    ring.svg.classList.toggle('is-unsure', !!p.unsure);
+    box.prepend(ring.svg);
     if (p.unsure) {
       title.textContent = 'סימנתם שעדיין לא בטוחים מה הוא יודע — וזה בסדר גמור.';
       body.textContent = 'בשיחה הקרובה נבדוק יחד את זה, ונדע אם מתחילים ישר או דרך מסלול ההכנה.';
@@ -82,7 +110,10 @@ document.addEventListener('click', async (e) => {
 });
 
 /* ── motion and data ──────────────────────────────────────────────────── */
-reveals();
+settled.then(() => reveals());
+atmosphere();
+createPortrait($('.nir__photo'));
+countUp($('[data-count]'), 1.4);
 reportOpen();
 track('thankyou_view', { segment });
 watchChapters();

@@ -78,11 +78,14 @@ export function summary() {
 // and a dwell time when it leaves.
 export function watchChapters(selector = '[data-chapter]') {
   const since = new Map();
+  // half of the chapter on screen, or half of the screen taken by it: a chapter
+  // taller than two screens (the syllabus scene) can never be half on screen
+  const enough = (e) => e.isIntersecting && (e.intersectionRatio >= 0.5 || e.intersectionRect.height >= innerHeight * 0.5);
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) {
       const name = e.target.dataset.chapter;
-      if (e.isIntersecting) {
-        since.set(name, performance.now());
+      if (enough(e)) {
+        if (!since.has(name)) since.set(name, performance.now());
         if (!seen.has(name)) track('section_view', { chapter: name });
       } else if (since.has(name)) {
         const ms = Math.round(performance.now() - since.get(name));
@@ -90,7 +93,7 @@ export function watchChapters(selector = '[data-chapter]') {
         if (ms > 1200) track('section_dwell', { chapter: name, ms });
       }
     }
-  }, { threshold: 0.5 });
+  }, { threshold: [0, 0.2, 0.35, 0.5, 0.65, 0.8, 1] });
   document.querySelectorAll(selector).forEach((el) => io.observe(el));
 
   const marks = [25, 50, 75, 100];
